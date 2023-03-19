@@ -43,6 +43,19 @@ const rootReducer = (state, action) => {
       state.conversations[conversation.name] = conversation;
       return {...state};
     }
+    case 'DELETE_CONVERSATION': {
+      const {name} = action;
+      console.log(name);
+      delete state.conversations[name];
+      if (state.selectedConversation == name) {
+        if (Object.keys(state.conversations).length == 0) {
+          return initState();
+        }
+        console.log(Object.keys(state.conversations));
+        state.selectedConversation = Object.keys(state.conversations)[0];
+      }
+      return {...state};
+    }
     case 'SET_MODAL':
     case 'DISMISS_MODAL':
       return modalReducer(state, action);

@@ -3,6 +3,7 @@ const Chat = require('./Chat.react');
 const {Button, Modal} = require('bens_ui_components');
 const Thread = require('./Thread.react');
 const ThreadSidebar = require('./ThreadSidebar.react');
+const ApiKeyModal = require('./ApiKeyModal.react');
 const {useEnhancedReducer} = require('bens_ui_components');
 const {rootReducer, initState} = require('../reducers/rootReducer');
 const {useState, useEffect, useMemo} = React;
@@ -15,13 +16,21 @@ function Main(props) {
   window.getState = getState;
   window.dispatch = dispatch;
 
+  useEffect(() => {
+    const apiKey = localStorage.getItem("gptAPIKey");
+    if (!apiKey) {
+      dispatch({type: 'SET_MODAL',
+        modal: <ApiKeyModal dispatch={dispatch} />
+      });
+    }
+  }, []);
+
   return (
     <div
       style={{
         display: 'flex',
         flexDirection: 'row',
         height: '100%',
-        justifyContent: 'space-between',
       }}
     >
       <ThreadSidebar state={state} dispatch={dispatch} />
@@ -29,6 +38,7 @@ function Main(props) {
         dispatch={dispatch}
         conversation={state.conversations[state.selectedConversation]}
       />
+      {state.modal}
     </div>
   )
 }

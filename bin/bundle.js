@@ -1,9 +1,46 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-module.exports = {
-  gptAPIKey: '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',
-}
-
-},{}],2:[function(require,module,exports){
+const React = require('react');
+const {
+  Modal,
+  TextField
+} = require('bens_ui_components');
+const {
+  useEffect,
+  useState,
+  useMemo
+} = React;
+const ApiKeyModal = props => {
+  const {
+    state,
+    dispatch
+  } = props;
+  const [apiKeyText, setApiKeyText] = useState('');
+  return /*#__PURE__*/React.createElement(Modal, {
+    title: "Provide API Key",
+    body: /*#__PURE__*/React.createElement("div", {
+      style: {}
+    }, "The key you provide here will be saved to localStorage for next time. If your key gets rotated, then delete it in the console with localStorage.removeItem(\"gptAPIKey\")", /*#__PURE__*/React.createElement(TextField, {
+      style: {
+        width: '99%'
+      },
+      value: apiKeyText,
+      onChange: setApiKeyText,
+      placeholder: "Key goes here"
+    })),
+    buttons: [{
+      label: 'Save API Key',
+      onClick: () => {
+        localStorage.setItem("gptAPIKey", apiKeyText);
+        dispatch({
+          type: 'DISMISS_MODAL'
+        });
+      }
+    }],
+    style: {}
+  });
+};
+module.exports = ApiKeyModal;
+},{"bens_ui_components":79,"react":133}],2:[function(require,module,exports){
 const React = require('react');
 const {
   Button,
@@ -211,6 +248,7 @@ const {
 } = require('bens_ui_components');
 const Thread = require('./Thread.react');
 const ThreadSidebar = require('./ThreadSidebar.react');
+const ApiKeyModal = require('./ApiKeyModal.react');
 const {
   useEnhancedReducer
 } = require('bens_ui_components');
@@ -227,6 +265,17 @@ function Main(props) {
   const [state, dispatch, getState] = useEnhancedReducer(rootReducer, initState());
   window.getState = getState;
   window.dispatch = dispatch;
+  useEffect(() => {
+    const apiKey = localStorage.getItem("gptAPIKey");
+    if (!apiKey) {
+      dispatch({
+        type: 'SET_MODAL',
+        modal: /*#__PURE__*/React.createElement(ApiKeyModal, {
+          dispatch: dispatch
+        })
+      });
+    }
+  }, []);
   return /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -240,10 +289,10 @@ function Main(props) {
   }), /*#__PURE__*/React.createElement(Thread, {
     dispatch: dispatch,
     conversation: state.conversations[state.selectedConversation]
-  }));
+  }), state.modal);
 }
 module.exports = Main;
-},{"../reducers/rootReducer":11,"./Chat.react":2,"./Thread.react":5,"./ThreadSidebar.react":6,"bens_ui_components":79,"react":133}],4:[function(require,module,exports){
+},{"../reducers/rootReducer":11,"./ApiKeyModal.react":1,"./Chat.react":2,"./Thread.react":5,"./ThreadSidebar.react":6,"bens_ui_components":79,"react":133}],4:[function(require,module,exports){
 const React = require('react');
 const {
   useEffect,
@@ -349,6 +398,9 @@ const {
   Button,
   Divider
 } = require('bens_ui_components');
+const {
+  deepCopy
+} = require('bens_utils').helpers;
 const ThreadSidebar = props => {
   const {
     state,
@@ -362,7 +414,15 @@ const ThreadSidebar = props => {
       key: "convo_" + i,
       style: {
         width: '100%',
-        padding: '15%'
+        border: state.selectedConversation == name ? '1px solid grey' : 'none'
+      },
+      onClick: () => {
+        if (state.selectedConversation != name) {
+          dispatch({
+            type: 'SELECT_CONVERSATION',
+            selectedConversation: name
+          });
+        }
       }
     }, /*#__PURE__*/React.createElement(TextField, {
       value: name,
@@ -374,12 +434,29 @@ const ThreadSidebar = props => {
         });
       }
     }), /*#__PURE__*/React.createElement("div", null, conversation.tokens, "/4096 tokens"), /*#__PURE__*/React.createElement(Button, {
-      label: "Select",
-      disabled: state.selectedConversation == name,
+      label: "Duplicate",
+      style: {
+        display: state.selectedConversation != name ? 'none' : 'inline'
+      },
       onClick: () => {
         dispatch({
-          type: 'SELECT_CONVERSATION',
-          selectedConversation: name
+          type: 'ADD_CONVERSATION',
+          conversation: {
+            ...deepCopy(conversation),
+            name: 'conversation ' + (Object.keys(state.conversations).length + 1)
+          },
+          shouldSelect: true
+        });
+      }
+    }), /*#__PURE__*/React.createElement(Button, {
+      label: "Delete",
+      style: {
+        display: state.selectedConversation != name ? 'none' : 'inline'
+      },
+      onClick: () => {
+        dispatch({
+          type: 'DELETE_CONVERSATION',
+          name
         });
       }
     })));
@@ -387,13 +464,31 @@ const ThreadSidebar = props => {
   }
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 200,
-      height: '100%'
+      width: 250,
+      height: '100%',
+      overflowY: 'scroll',
+      display: 'flex',
+      alignItems: 'center',
+      flexDirection: 'column',
+      marginLeft: 5,
+      gap: 10
     }
   }, /*#__PURE__*/React.createElement("div", {
-    style: {}
-  }, "Conversations:", /*#__PURE__*/React.createElement(Divider, null)), /*#__PURE__*/React.createElement(Button, {
+    style: {
+      textAlign: 'center',
+      width: '100%',
+      marginTop: 15
+    }
+  }, /*#__PURE__*/React.createElement("b", null, "Conversations:"), /*#__PURE__*/React.createElement(Divider, {
+    style: {
+      marginTop: 5,
+      marginBottom: 5
+    }
+  })), /*#__PURE__*/React.createElement(Button, {
     label: "New Conversation",
+    style: {
+      display: 'block'
+    },
     onClick: () => {
       dispatch({
         type: 'ADD_CONVERSATION',
@@ -408,7 +503,7 @@ const ThreadSidebar = props => {
   }), convoHeaders);
 };
 module.exports = ThreadSidebar;
-},{"../gpt":8,"bens_ui_components":79,"react":133}],7:[function(require,module,exports){
+},{"../gpt":8,"bens_ui_components":79,"bens_utils":86,"react":133}],7:[function(require,module,exports){
 const config = {};
 module.exports = {
   config
@@ -444,7 +539,7 @@ const createConversation = (params, messages) => {
     messages: messages ?? []
   };
 };
-const submitConversation = conversation => {
+const submitConversation = (conversation, apiKey) => {
   const axiosInstance = axios.create({
     baseURL: "https://api.openai.com/v1/chat/completions"
   });
@@ -455,7 +550,7 @@ const submitConversation = conversation => {
   }, {
     headers: {
       'Content-Type': 'application/json',
-      "Authorization": "Bearer " + require('../.secrets').gptAPIKey
+      Authorization: "Bearer " + (apiKey ?? localStorage.getItem("gptAPIKey"))
     }
   }).then(completion => {
     const responseMessage = completion.data.choices[0].message.content.trim();
@@ -495,8 +590,9 @@ const submitConversationAPI = (conversation, api) => {
 };
 const createAPI = apiKey => {
   const configuration = new Configuration({
-    apiKey: apiKey ?? require('../.secrets').gptAPIKey
+    apiKey: apiKey // ?? require('../.secrets').gptAPIKey,
   });
+
   return new OpenAIApi(configuration);
 };
 const addMessage = (conversation, message) => {
@@ -511,7 +607,7 @@ module.exports = {
   createAPI,
   addMessage
 };
-},{"../.secrets":1,"axios":12,"openai":94}],9:[function(require,module,exports){
+},{"axios":12,"openai":94}],9:[function(require,module,exports){
 "use strict";
 
 var _Main = _interopRequireDefault(require("./UI/Main.react"));
@@ -617,6 +713,24 @@ const rootReducer = (state, action) => {
           conversation
         } = action;
         state.conversations[conversation.name] = conversation;
+        return {
+          ...state
+        };
+      }
+    case 'DELETE_CONVERSATION':
+      {
+        const {
+          name
+        } = action;
+        console.log(name);
+        delete state.conversations[name];
+        if (state.selectedConversation == name) {
+          if (Object.keys(state.conversations).length == 0) {
+            return initState();
+          }
+          console.log(Object.keys(state.conversations));
+          state.selectedConversation = Object.keys(state.conversations)[0];
+        }
         return {
           ...state
         };

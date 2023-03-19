@@ -27,7 +27,7 @@ const createConversation = (params, messages) => {
   };
 }
 
-const submitConversation = (conversation) => {
+const submitConversation = (conversation, apiKey) => {
   const axiosInstance = axios.create({
     baseURL: "https://api.openai.com/v1/chat/completions",
   });
@@ -38,7 +38,7 @@ const submitConversation = (conversation) => {
   }, {
     headers: {
       'Content-Type': 'application/json',
-      "Authorization": "Bearer " + require('../.secrets').gptAPIKey,
+      Authorization: "Bearer " + (apiKey ?? localStorage.getItem("gptAPIKey"))
     }
   }).then((completion) => {
     const responseMessage = completion.data.choices[0].message.content.trim();
@@ -73,7 +73,7 @@ const submitConversationAPI = (conversation, api) => {
 
 const createAPI = (apiKey) => {
   const configuration = new Configuration({
-    apiKey: apiKey ?? require('../.secrets').gptAPIKey,
+    apiKey: apiKey // ?? require('../.secrets').gptAPIKey,
   });
   return new OpenAIApi(configuration);
 }

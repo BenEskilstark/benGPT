@@ -1,8 +1,12 @@
 
+  - bugs
+    - fix renaming non-last thread
+
   - store threads in localStorage
   - better styling for thread sidebar
-  - better styling for chat in full screen
-  - api key in localStorage
+  - set thread params
+  - import/export thread as JSON
+
   - npm package
     - index.js with Chat, Thread, and gpt.js functions
     - reducer for tracking conversations

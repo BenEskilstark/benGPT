@@ -3,6 +3,7 @@ const {createConversation} = require('../gpt');
 const {
   TextField, Button, Divider
 } = require('bens_ui_components');
+const {deepCopy} = require('bens_utils').helpers;
 
 
 const ThreadSidebar = (props) => {
@@ -17,7 +18,15 @@ const ThreadSidebar = (props) => {
         key={"convo_" + i}
         style={{
           width: '100%',
-          padding: '15%',
+          border: state.selectedConversation == name
+            ? '1px solid grey' : 'none',
+        }}
+        onClick={() => {
+          if (state.selectedConversation != name) {
+            dispatch({type: 'SELECT_CONVERSATION',
+              selectedConversation: name,
+            });
+          }
         }}
       >
         <TextField
@@ -32,12 +41,29 @@ const ThreadSidebar = (props) => {
           {conversation.tokens}/4096 tokens
         </div>
         <Button
-          label="Select"
-          disabled={state.selectedConversation == name}
+          label="Duplicate"
+          style={{
+            display: state.selectedConversation != name
+              ? 'none' : 'inline',
+          }}
           onClick={() => {
-            dispatch({type: 'SELECT_CONVERSATION',
-              selectedConversation: name,
+            dispatch({type: 'ADD_CONVERSATION',
+              conversation: {
+                ...deepCopy(conversation),
+                name: 'conversation ' + (Object.keys(state.conversations).length + 1),
+              },
+              shouldSelect: true,
             });
+          }}
+        />
+        <Button
+          label="Delete"
+          style={{
+            display: state.selectedConversation != name
+              ? 'none' : 'inline',
+          }}
+          onClick={() => {
+            dispatch({type: 'DELETE_CONVERSATION', name});
           }}
         />
 
@@ -49,20 +75,36 @@ const ThreadSidebar = (props) => {
   return (
     <div
       style={{
-        width: 200,
+        width: 250,
         height: '100%',
+        overflowY: 'scroll',
+        display: 'flex',
+        alignItems: 'center',
+        flexDirection: 'column',
+        marginLeft: 5,
+        gap: 10,
       }}
     >
       <div
         style={{
-
+          textAlign: 'center',
+          width: '100%',
+          marginTop: 15,
         }}
       >
-        Conversations:
-        <Divider />
+        <b>Conversations:</b>
+        <Divider
+          style={{
+            marginTop: 5,
+            marginBottom: 5,
+          }}
+        />
       </div>
       <Button
         label="New Conversation"
+        style={{
+          display: 'block',
+        }}
         onClick={() => {
           dispatch({type: 'ADD_CONVERSATION',
             conversation: createConversation({
