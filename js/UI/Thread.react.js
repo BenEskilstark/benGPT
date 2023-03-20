@@ -22,8 +22,8 @@ function Thread(props) {
       style={{
         height: '100%',
         margin: 'none',
-        padding: '15px',
         marginTop: 0,
+        flexGrow: 1,
       }}
       conversation={conversation}
       onSubmit={(message, toAPI) => {
@@ -45,11 +45,11 @@ function Thread(props) {
       }}
       onClear={() => {
         const nextConvo = {...conversation, messages: []};
-        updateConveration(nextConvo);
+        updateConversation(nextConvo);
       }}
       onUndo={() => {
         const nextConvo = {...conversation, messages: conversation.messages.slice(0, -1)};
-        updateConveration(nextConvo);
+        updateConversation(nextConvo);
       }}
       showRole={true} showClear={true} showSystem={true}
     />

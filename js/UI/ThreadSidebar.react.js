@@ -3,6 +3,7 @@ const {createConversation} = require('../gpt');
 const {
   TextField, Button, Divider
 } = require('bens_ui_components');
+const ImportJSONModal = require('./ImportJSONModal.react');
 const {deepCopy} = require('bens_utils').helpers;
 
 
@@ -18,8 +19,10 @@ const ThreadSidebar = (props) => {
         key={"convo_" + i}
         style={{
           width: '100%',
-          border: state.selectedConversation == name
-            ? '1px solid grey' : 'none',
+          boxShadow: state.selectedConversation == name
+            ? '0 0 10px 10px #FAEBD7' : 'none',
+          backgroundColor: state.selectedConversation == name
+            ? '#FAEBD7' : 'inherit',
         }}
         onClick={() => {
           if (state.selectedConversation != name) {
@@ -37,35 +40,61 @@ const ThreadSidebar = (props) => {
             });
           }}
         />
-        <div>
-          {conversation.tokens}/4096 tokens
-        </div>
         <Button
-          label="Duplicate"
+          label="❌"
           style={{
             display: state.selectedConversation != name
               ? 'none' : 'inline',
-          }}
-          onClick={() => {
-            dispatch({type: 'ADD_CONVERSATION',
-              conversation: {
-                ...deepCopy(conversation),
-                name: 'conversation ' + (Object.keys(state.conversations).length + 1),
-              },
-              shouldSelect: true,
-            });
-          }}
-        />
-        <Button
-          label="Delete"
-          style={{
-            display: state.selectedConversation != name
-              ? 'none' : 'inline',
+            border: 'none',
+            backgroundColor: 'inherit',
+            float: 'right',
+            cursor: 'pointer',
           }}
           onClick={() => {
             dispatch({type: 'DELETE_CONVERSATION', name});
           }}
         />
+        <div>
+          {conversation.tokens}/4096 tokens
+        </div>
+        <div
+          style={{
+            display: state.selectedConversation != name
+              ? 'none' : 'inline',
+          }}
+        >
+          <Button
+            label="Duplicate"
+            onClick={() => {
+              dispatch({type: 'ADD_CONVERSATION',
+                conversation: {
+                  ...deepCopy(conversation),
+                  name: 'conversation ' + (Object.keys(state.conversations).length + 1),
+                },
+                shouldSelect: true,
+              });
+            }}
+          />
+          <div></div>
+          <Button
+            label="Copy to clipboard"
+            onClick={() => {
+              navigator.clipboard.writeText(JSON.stringify(conversation));
+            }}
+          />
+          <Button
+            label="Import JSON"
+            onClick={() => {
+              dispatch({type: 'SET_MODAL',
+                modal: <ImportJSONModal
+                  conversation={conversation}
+                  dispatch={dispatch}
+                />
+              });
+            }}
+          />
+        </div>
+
 
       </div>
     );
@@ -82,28 +111,14 @@ const ThreadSidebar = (props) => {
         alignItems: 'center',
         flexDirection: 'column',
         marginLeft: 5,
-        gap: 10,
+        gap: 15,
       }}
     >
-      <div
-        style={{
-          textAlign: 'center',
-          width: '100%',
-          marginTop: 15,
-        }}
-      >
-        <b>Conversations:</b>
-        <Divider
-          style={{
-            marginTop: 5,
-            marginBottom: 5,
-          }}
-        />
-      </div>
       <Button
         label="New Conversation"
         style={{
           display: 'block',
+          marginTop: 15,
         }}
         onClick={() => {
           dispatch({type: 'ADD_CONVERSATION',

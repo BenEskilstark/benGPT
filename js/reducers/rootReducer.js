@@ -1,61 +1,21 @@
 
 const {modalReducer} = require('./modalReducer');
-const {config} = require('../config');
+const {conversationReducer} = require('./conversationReducer');
 const {createConversation} = require('../gpt');
-const {deepCopy} = require('bens_utils').helpers;
+const {config} = require('../config');
 
 const rootReducer = (state, action) => {
   if (state === undefined) return initState();
 
   switch (action.type) {
-    case 'SELECT_CONVERSATION': {
-      const {selectedConversation} = action;
-      return {
-        ...state,
-        selectedConversation,
-      };
-    }
-    case 'ADD_CONVERSATION': {
-      const {conversation, shouldSelect} = action;
-      if (state.conversations[conversation.name]) {
-        conversation.name += 'x';
-      }
-      state.conversations[conversation.name] = conversation;
-      if (shouldSelect) {
-        state.selectedConversation = conversation.name;
-      }
-      return {...state};
-    }
-    case 'SET_CONVERSATION_NAME': {
-      const {oldName, newName} = action;
-      const conversation = state.conversations[oldName];
-      if (!conversation) return {...state};
-      conversation.name = newName;
-      delete state.conversations[oldName];
-      state.conversations[newName] = conversation;
-      if (state.selectedConversation == oldName) {
-        state.selectedConversation = newName;
-      }
-      return {...state};
-    }
-    case 'UPDATE_CONVERSATION': {
-      const {conversation} = action;
-      state.conversations[conversation.name] = conversation;
-      return {...state};
-    }
-    case 'DELETE_CONVERSATION': {
-      const {name} = action;
-      console.log(name);
-      delete state.conversations[name];
-      if (state.selectedConversation == name) {
-        if (Object.keys(state.conversations).length == 0) {
-          return initState();
-        }
-        console.log(Object.keys(state.conversations));
-        state.selectedConversation = Object.keys(state.conversations)[0];
-      }
-      return {...state};
-    }
+    case 'SELECT_CONVERSATION':
+    case 'ADD_CONVERSATION':
+    case 'SET_CONVERSATION_NAME':
+    case 'UPDATE_CONVERSATION':
+    case 'DELETE_CONVERSATION':
+      const nextState = conversationReducer(state, action);
+      localStorage.setItem("conversations", JSON.stringify(nextState.conversations));
+      return nextState;
     case 'SET_MODAL':
     case 'DISMISS_MODAL':
       return modalReducer(state, action);
@@ -67,13 +27,15 @@ const rootReducer = (state, action) => {
 //////////////////////////////////////
 // Initializations
 const initState = () => {
+  const local = localStorage.getItem("conversations");
+  const conversations = local ? JSON.parse(local) : null;
   return {
-    conversations: {
+    conversations: conversations ?? {
       ['conversation 1']: createConversation({
         name: 'conversation 1', placeholder: 'Type anything...', tokens: 0,
       }),
     },
-    selectedConversation: 'conversation 1',
+    selectedConversation: conversations ? Object.keys(conversations)[0] : 'conversation 1',
   };
 }
 

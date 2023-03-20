@@ -1,11 +1,9 @@
 
   - bugs
-    - fix renaming non-last thread
+    - new conversation when you have a name overlap + x will clear convo
 
-  - store threads in localStorage
-  - better styling for thread sidebar
   - set thread params
-  - import/export thread as JSON
+  - submit with empty text should submit without adding the message
 
   - npm package
     - index.js with Chat, Thread, and gpt.js functions

@@ -122,7 +122,7 @@ function Chat(props) {
   return (
     <div
       style={{
-        width: 800,
+        width: 400,
         margin: 'auto',
         marginTop: 15,
         ...style,
@@ -130,13 +130,14 @@ function Chat(props) {
     >
       <div
         style={{
-          border: '1px solid black',
+          // border: '1px solid black',
+          backgroundColor: 'white',
           width: '100%',
           height: `calc(100% - ${showBigTextBox ? '195px' : '60px'})`,
           overflowY: 'scroll',
-          padding: 4,
+          padding: 6,
           paddingBottom: 64,
-          boxShadow: 'inset -0.3em -0.3em 0.5em rgba(0,0,0,0.3)',
+          boxShadow: 'inset 0.3em -0.3em 0.5em rgba(0,0,0,0.3)',
         }}
       >
         {messages}
