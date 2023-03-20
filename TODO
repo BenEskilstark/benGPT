@@ -2,8 +2,11 @@
   - bugs
     - new conversation when you have a name overlap + x will clear convo
 
+  - show something while waiting for response
+  - way to X out of import modal
+  - way to bring back apiKey modal
   - set thread params
-  - submit with empty text should submit without adding the message
+  - submit/clear/undo should stack on top of each other when in big text mode
 
   - npm package
     - index.js with Chat, Thread, and gpt.js functions

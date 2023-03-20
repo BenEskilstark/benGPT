@@ -221,14 +221,23 @@ function Chat(props) {
     }
   })) : null, textInput, /*#__PURE__*/React.createElement(Button, {
     label: "Submit",
+    style: {
+      fontSize: 16
+    },
     onClick: () => {
       submitPrompt(role, onSubmit, curPrompt, setCurPrompt, submitToAPI);
     }
   }), showClear ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Button, {
     label: "Undo",
+    style: {
+      fontSize: 16
+    },
     onClick: onUndo
   }), /*#__PURE__*/React.createElement(Button, {
     label: "Clear",
+    style: {
+      fontSize: 16
+    },
     onClick: onClear
   })) : null));
 }
@@ -401,8 +410,11 @@ function Thread(props) {
     },
     conversation: conversation,
     onSubmit: (message, toAPI) => {
-      const nextConversation = addMessage(conversation, message);
-      updateConversation(nextConversation);
+      let nextConversation = conversation;
+      if (message.content != '') {
+        nextConversation = addMessage(conversation, message);
+        updateConversation(nextConversation);
+      }
       if (toAPI) {
         submitConversation(nextConversation).then(response => {
           // console.log(response.usage, response.finishReason);
@@ -474,7 +486,7 @@ const ThreadSidebar = props => {
           });
         }
       }
-    }, /*#__PURE__*/React.createElement(TextField, {
+    }, state.selectedConversation == name ? /*#__PURE__*/React.createElement(TextField, {
       value: name,
       onChange: val => {
         dispatch({
@@ -483,14 +495,15 @@ const ThreadSidebar = props => {
           newName: val
         });
       }
-    }), /*#__PURE__*/React.createElement(Button, {
+    }) : name, /*#__PURE__*/React.createElement(Button, {
       label: "\u274C",
       style: {
         display: state.selectedConversation != name ? 'none' : 'inline',
         border: 'none',
         backgroundColor: 'inherit',
         float: 'right',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        fontSize: 10
       },
       onClick: () => {
         dispatch({
@@ -498,12 +511,20 @@ const ThreadSidebar = props => {
           name
         });
       }
-    }), /*#__PURE__*/React.createElement("div", null, conversation.tokens, "/4096 tokens"), /*#__PURE__*/React.createElement("div", {
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12
+      }
+    }, conversation.tokens, "/4096 tokens"), /*#__PURE__*/React.createElement("div", {
       style: {
         display: state.selectedConversation != name ? 'none' : 'inline'
       }
     }, /*#__PURE__*/React.createElement(Button, {
-      label: "Duplicate",
+      label: "Clone",
+      style: {
+        width: '33%',
+        fontSize: 15
+      },
       onClick: () => {
         dispatch({
           type: 'ADD_CONVERSATION',
@@ -514,13 +535,21 @@ const ThreadSidebar = props => {
           shouldSelect: true
         });
       }
-    }), /*#__PURE__*/React.createElement("div", null), /*#__PURE__*/React.createElement(Button, {
-      label: "Copy to clipboard",
+    }), /*#__PURE__*/React.createElement(Button, {
+      style: {
+        width: '33%',
+        fontSize: 15
+      },
+      label: "Copy",
       onClick: () => {
         navigator.clipboard.writeText(JSON.stringify(conversation));
       }
     }), /*#__PURE__*/React.createElement(Button, {
-      label: "Import JSON",
+      label: "Import",
+      style: {
+        width: '33%',
+        fontSize: 15
+      },
       onClick: () => {
         dispatch({
           type: 'SET_MODAL',
@@ -542,13 +571,18 @@ const ThreadSidebar = props => {
       alignItems: 'center',
       flexDirection: 'column',
       marginLeft: 5,
-      gap: 15
+      gap: 15,
+      paddingTop: 15
     }
-  }, /*#__PURE__*/React.createElement(Button, {
+  }, convoHeaders, /*#__PURE__*/React.createElement(Button, {
     label: "New Conversation",
     style: {
       display: 'block',
-      marginTop: 15
+      marginTop: 15,
+      paddingTop: 5,
+      paddingBottom: 5,
+      paddingLeft: 20,
+      paddingRight: 20
     },
     onClick: () => {
       dispatch({
@@ -561,7 +595,7 @@ const ThreadSidebar = props => {
         shouldSelect: true
       });
     }
-  }), convoHeaders);
+  }));
 };
 module.exports = ThreadSidebar;
 },{"../gpt":9,"./ImportJSONModal.react":3,"bens_ui_components":81,"bens_utils":88,"react":135}],8:[function(require,module,exports){
@@ -826,6 +860,7 @@ const rootReducer = (state, action) => {
     case 'DELETE_CONVERSATION':
       const nextState = conversationReducer(state, action);
       localStorage.setItem("conversations", JSON.stringify(nextState.conversations));
+      localStorage.setItem("selectedConversation", nextState.selectedConversation);
       return nextState;
     case 'SET_MODAL':
     case 'DISMISS_MODAL':
@@ -839,6 +874,7 @@ const rootReducer = (state, action) => {
 const initState = () => {
   const local = localStorage.getItem("conversations");
   const conversations = local ? JSON.parse(local) : null;
+  const selected = localStorage.getItem("selectedConversation");
   return {
     conversations: conversations ?? {
       ['conversation 1']: createConversation({
@@ -847,7 +883,7 @@ const initState = () => {
         tokens: 0
       })
     },
-    selectedConversation: conversations ? Object.keys(conversations)[0] : 'conversation 1'
+    selectedConversation: selected ?? 'conversation 1'
   };
 };
 module.exports = {

@@ -27,8 +27,11 @@ function Thread(props) {
       }}
       conversation={conversation}
       onSubmit={(message, toAPI) => {
-        const nextConversation = addMessage(conversation, message);
-        updateConversation(nextConversation);
+        let nextConversation = conversation;
+        if (message.content != '') {
+          nextConversation = addMessage(conversation, message);
+          updateConversation(nextConversation);
+        }
         if (toAPI) {
           submitConversation(nextConversation)
             .then((response) => {

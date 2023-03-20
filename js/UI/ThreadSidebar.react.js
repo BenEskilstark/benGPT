@@ -32,14 +32,18 @@ const ThreadSidebar = (props) => {
           }
         }}
       >
-        <TextField
-          value={name}
-          onChange={(val) => {
-            dispatch({type: 'SET_CONVERSATION_NAME',
-              oldName: name, newName: val,
-            });
-          }}
-        />
+        {state.selectedConversation == name ? (
+          <TextField
+            value={name}
+            onChange={(val) => {
+              dispatch({type: 'SET_CONVERSATION_NAME',
+                oldName: name, newName: val,
+              });
+            }}
+          />
+        ) : (
+          name
+        )}
         <Button
           label="❌"
           style={{
@@ -49,12 +53,17 @@ const ThreadSidebar = (props) => {
             backgroundColor: 'inherit',
             float: 'right',
             cursor: 'pointer',
+            fontSize: 10,
           }}
           onClick={() => {
             dispatch({type: 'DELETE_CONVERSATION', name});
           }}
         />
-        <div>
+        <div
+          style={{
+            fontSize: 12,
+          }}
+        >
           {conversation.tokens}/4096 tokens
         </div>
         <div
@@ -64,7 +73,11 @@ const ThreadSidebar = (props) => {
           }}
         >
           <Button
-            label="Duplicate"
+            label="Clone"
+            style={{
+              width: '33%',
+              fontSize: 15,
+            }}
             onClick={() => {
               dispatch({type: 'ADD_CONVERSATION',
                 conversation: {
@@ -75,15 +88,22 @@ const ThreadSidebar = (props) => {
               });
             }}
           />
-          <div></div>
           <Button
-            label="Copy to clipboard"
+            style={{
+              width: '33%',
+              fontSize: 15,
+            }}
+            label="Copy"
             onClick={() => {
               navigator.clipboard.writeText(JSON.stringify(conversation));
             }}
           />
           <Button
-            label="Import JSON"
+            label="Import"
+            style={{
+              width: '33%',
+              fontSize: 15,
+            }}
             onClick={() => {
               dispatch({type: 'SET_MODAL',
                 modal: <ImportJSONModal
@@ -112,13 +132,19 @@ const ThreadSidebar = (props) => {
         flexDirection: 'column',
         marginLeft: 5,
         gap: 15,
+        paddingTop: 15,
       }}
     >
+      {convoHeaders}
       <Button
         label="New Conversation"
         style={{
           display: 'block',
           marginTop: 15,
+          paddingTop: 5,
+          paddingBottom: 5,
+          paddingLeft: 20,
+          paddingRight: 20,
         }}
         onClick={() => {
           dispatch({type: 'ADD_CONVERSATION',
@@ -131,7 +157,6 @@ const ThreadSidebar = (props) => {
         }}
       />
 
-      {convoHeaders}
 
     </div>
   );

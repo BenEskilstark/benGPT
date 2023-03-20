@@ -175,6 +175,7 @@ function Chat(props) {
         {textInput}
         <Button
           label="Submit"
+          style={{fontSize: 16}}
           onClick={() => {
             submitPrompt(role, onSubmit, curPrompt, setCurPrompt, submitToAPI);
           }}
@@ -183,10 +184,12 @@ function Chat(props) {
           <React.Fragment>
             <Button
               label="Undo"
+              style={{fontSize: 16}}
               onClick={onUndo}
             />
             <Button
               label="Clear"
+              style={{fontSize: 16}}
               onClick={onClear}
             />
           </React.Fragment>
