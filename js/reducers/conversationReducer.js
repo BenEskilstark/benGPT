@@ -6,6 +6,12 @@ const conversationReducer = (state, action) => {
   if (state === undefined) return {};
 
   switch (action.type) {
+    case 'SET_AWAITING': {
+      return {
+        ...state,
+        awaitingResponse: action.awaitingResponse,
+      };
+    }
     case 'SELECT_CONVERSATION': {
       const {selectedConversation} = action;
       return {
@@ -16,7 +22,7 @@ const conversationReducer = (state, action) => {
     case 'ADD_CONVERSATION': {
       const {conversation, shouldSelect} = action;
       if (state.conversations[conversation.name]) {
-        conversation.name += 'x';
+        conversation.name = addName(conversation.name, Object.keys(state.conversations));
       }
       state.conversations[conversation.name] = conversation;
       if (shouldSelect) {
@@ -65,5 +71,21 @@ const conversationReducer = (state, action) => {
 
   return state;
 };
+
+// NOTE: this was produced by ChatGPT :)
+// Prevents name collisions by adding a number to the end if necessary
+function addName(name, existingNames) {
+  let currentName = name;
+  let index = 0;
+  while (existingNames.includes(currentName)) {
+    const match = currentName.match(/^(.*?)(\d*)$/);
+    const baseName = match ? match[1] : currentName;
+    const numberString = match ? match[2] : '';
+    const number = numberString ? parseInt(numberString) : 0;
+    index = Math.max(index, number + 1);
+    currentName = `${baseName}${index}`;
+  }
+  return currentName;
+}
 
 module.exports = {conversationReducer};

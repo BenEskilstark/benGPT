@@ -31,6 +31,7 @@ function Main(props) {
         display: 'flex',
         flexDirection: 'row',
         height: '100%',
+        cursor: state.awaitingResponse ? 'wait' : 'auto',
       }}
     >
       <ThreadSidebar state={state} dispatch={dispatch} />

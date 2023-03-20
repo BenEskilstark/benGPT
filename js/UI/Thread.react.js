@@ -33,6 +33,7 @@ function Thread(props) {
           updateConversation(nextConversation);
         }
         if (toAPI) {
+          dispatch({type: 'SET_AWAITING', awaitingResponse: true});
           submitConversation(nextConversation)
             .then((response) => {
               // console.log(response.usage, response.finishReason);
@@ -41,6 +42,7 @@ function Thread(props) {
                 tokens: response.tokens,
               }
               updateConversation(nextConvo);
+              dispatch({type: 'SET_AWAITING', awaitingResponse: false});
             }).catch((ex) => {
               console.error(ex);
             });
