@@ -38,6 +38,7 @@ function Main(props) {
       <Thread
         dispatch={dispatch}
         conversation={state.conversations[state.selectedConversation]}
+        submitOnEnter={!state.isEditingPreviousMessage}
       />
       {state.modal}
     </div>

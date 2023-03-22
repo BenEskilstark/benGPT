@@ -12,6 +12,7 @@ const rootReducer = (state, action) => {
     case 'ADD_CONVERSATION':
     case 'SET_CONVERSATION_NAME':
     case 'UPDATE_CONVERSATION':
+    case 'SET_EDITING_PREVIOUS':
     case 'SET_AWAITING':
     case 'DELETE_CONVERSATION':
       const nextState = conversationReducer(state, action);
@@ -41,6 +42,7 @@ const initState = () => {
     },
     selectedConversation: selected ?? 'conversation 1',
     awaitingResponse: false,
+    isEditingPreviousMessage: false,
   };
 }
 

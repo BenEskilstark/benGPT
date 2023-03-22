@@ -11,7 +11,7 @@ const {useState, useEffect, useMemo} = React;
  *  multiple threads at once
  */
 function Thread(props) {
-  const {conversation, dispatch} = props;
+  const {conversation, dispatch, submitOnEnter} = props;
 
   const updateConversation = (convo) => {
     dispatch({type: 'UPDATE_CONVERSATION', conversation: convo});
@@ -48,13 +48,23 @@ function Thread(props) {
             });
         }
       }}
+      submitOnEnter={submitOnEnter}
       onClear={() => {
-        const nextConvo = {...conversation, messages: []};
+        const nextConvo = {
+          ...conversation,
+          messages: conversation.messages.filter(m => m.role == 'system'),
+        };
         updateConversation(nextConvo);
       }}
       onUndo={() => {
         const nextConvo = {...conversation, messages: conversation.messages.slice(0, -1)};
         updateConversation(nextConvo);
+      }}
+      onEdit={(message, index) => {
+        const nextConvo = {...conversation};
+        nextConvo.messages[index] = message;
+        updateConversation(nextConvo);
+
       }}
       showRole={true} showClear={true} showSystem={true}
     />

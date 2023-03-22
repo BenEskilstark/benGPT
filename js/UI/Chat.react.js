@@ -22,8 +22,10 @@ function Chat(props) {
     conversation,
     onSubmit, // (Message, toAPI) => void,
     // optional
+    submitOnEnter, // boolean for whether to use the enter hotkey
     onClear, // only needed with showClear
     onUndo, // also tied to showClear
+    onEdit, // if provided, each already-sent message is editable (message, index) => void
     style,
     showRole, showClear, showSystem,
   } = props;
@@ -32,6 +34,7 @@ function Chat(props) {
   for (let i = 0; i < conversation.messages.length; i++) {
     if (conversation.messages[i].role == 'system' && !showSystem) continue;
     messages.push(<Message
+      onEdit={onEdit} index={i}
       message={conversation.messages[i]} key={"message_" + i}
       roleNames={conversation.roleNames}
     />);
@@ -47,7 +50,7 @@ function Chat(props) {
   }
   useEffect(() => {
     scrollToBottom()
-  }, [messages]);
+  }, [messages.length]);
 
   // text input of different sizes
   const [showBigTextBox, setShowBigTextBox] = useState(false);
@@ -113,11 +116,11 @@ function Chat(props) {
   useHotKeyHandler({dispatch: hotKeyDispatch, getState: getHotKeyState});
   useEffect(() => {
     hotKeyDispatch({type: 'SET_HOTKEY', key: 'enter', press: 'onKeyDown', fn: () => {
-      if (!showBigTextBox) {
+      if (!showBigTextBox && submitOnEnter) {
         submitPrompt(role, onSubmit, curPrompt, setCurPrompt, submitToAPI);
       }
     }});
-  }, [curPrompt, role, showBigTextBox, submitToAPI, conversation]);
+  }, [curPrompt, role, showBigTextBox, submitToAPI, conversation, submitOnEnter]);
 
   return (
     <div
@@ -133,11 +136,13 @@ function Chat(props) {
           // border: '1px solid black',
           backgroundColor: 'white',
           width: '100%',
-          height: `calc(100% - ${showBigTextBox ? '195px' : '60px'})`,
+          height: `calc(100% - ${showBigTextBox ? '180px' : '45px'})`,
           overflowY: 'scroll',
           padding: 6,
           paddingBottom: 64,
           boxShadow: 'inset 0.3em -0.3em 0.5em rgba(0,0,0,0.3)',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         {messages}

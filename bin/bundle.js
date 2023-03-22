@@ -78,10 +78,14 @@ function Chat(props) {
     onSubmit,
     // (Message, toAPI) => void,
     // optional
+    submitOnEnter,
+    // boolean for whether to use the enter hotkey
     onClear,
     // only needed with showClear
     onUndo,
     // also tied to showClear
+    onEdit,
+    // if provided, each already-sent message is editable (message, index) => void
     style,
     showRole,
     showClear,
@@ -91,6 +95,8 @@ function Chat(props) {
   for (let i = 0; i < conversation.messages.length; i++) {
     if (conversation.messages[i].role == 'system' && !showSystem) continue;
     messages.push( /*#__PURE__*/React.createElement(Message, {
+      onEdit: onEdit,
+      index: i,
       message: conversation.messages[i],
       key: "message_" + i,
       roleNames: conversation.roleNames
@@ -109,7 +115,7 @@ function Chat(props) {
   };
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages.length]);
 
   // text input of different sizes
   const [showBigTextBox, setShowBigTextBox] = useState(false);
@@ -170,12 +176,12 @@ function Chat(props) {
       key: 'enter',
       press: 'onKeyDown',
       fn: () => {
-        if (!showBigTextBox) {
+        if (!showBigTextBox && submitOnEnter) {
           submitPrompt(role, onSubmit, curPrompt, setCurPrompt, submitToAPI);
         }
       }
     });
-  }, [curPrompt, role, showBigTextBox, submitToAPI, conversation]);
+  }, [curPrompt, role, showBigTextBox, submitToAPI, conversation, submitOnEnter]);
   return /*#__PURE__*/React.createElement("div", {
     style: {
       width: 400,
@@ -188,11 +194,13 @@ function Chat(props) {
       // border: '1px solid black',
       backgroundColor: 'white',
       width: '100%',
-      height: `calc(100% - ${showBigTextBox ? '195px' : '60px'})`,
+      height: `calc(100% - ${showBigTextBox ? '180px' : '45px'})`,
       overflowY: 'scroll',
       padding: 6,
       paddingBottom: 64,
-      boxShadow: 'inset 0.3em -0.3em 0.5em rgba(0,0,0,0.3)'
+      boxShadow: 'inset 0.3em -0.3em 0.5em rgba(0,0,0,0.3)',
+      display: 'flex',
+      flexDirection: 'column'
     }
   }, messages, /*#__PURE__*/React.createElement("div", {
     ref: messagesEndRef
@@ -346,12 +354,16 @@ function Main(props) {
     dispatch: dispatch
   }), /*#__PURE__*/React.createElement(Thread, {
     dispatch: dispatch,
-    conversation: state.conversations[state.selectedConversation]
+    conversation: state.conversations[state.selectedConversation],
+    submitOnEnter: !state.isEditingPreviousMessage
   }), state.modal);
 }
 module.exports = Main;
 },{"../reducers/rootReducer":14,"./ApiKeyModal.react":1,"./Chat.react":2,"./Thread.react":6,"./ThreadSidebar.react":7,"bens_ui_components":82,"react":136}],5:[function(require,module,exports){
 const React = require('react');
+const {
+  TextArea
+} = require('bens_ui_components');
 const {
   useEffect,
   useState,
@@ -359,20 +371,64 @@ const {
 } = React;
 const Message = props => {
   const {
-    roleNames
+    roleNames,
+    index,
+    onEdit
   } = props;
   const {
     role,
     content
   } = props.message;
+  useEffect(() => {
+    const elem = document.getElementById("text_area_" + index);
+    elem.style.height = elem.scrollHeight + 'px';
+  }, [content]);
+  let displayContent = content;
+  if (onEdit) {
+    displayContent = /*#__PURE__*/React.createElement(TextArea, {
+      id: "text_area_" + index,
+      style: {
+        border: 'none',
+        font: 'inherit',
+        resize: 'none',
+        width: '100%',
+        height: 'auto',
+        flex: 1
+      },
+      value: content,
+      onChange: value => {
+        onEdit({
+          role,
+          content: value
+        }, index);
+      },
+      onFocus: () => {
+        setTimeout(() => {
+          dispatch({
+            type: 'SET_EDITING_PREVIOUS',
+            isEditingPreviousMessage: true
+          });
+        }, 100);
+      },
+      onBlur: () => {
+        dispatch({
+          type: 'SET_EDITING_PREVIOUS',
+          isEditingPreviousMessage: false
+        });
+      }
+    });
+  }
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      whiteSpace: 'pre-wrap'
+      whiteSpace: 'pre-wrap',
+      display: 'flex',
+      // flex: 1,
+      fontSize: 14
     }
-  }, /*#__PURE__*/React.createElement("b", null, roleNames && roleNames[role] ? roleNames[role] : role), ": ", content);
+  }, /*#__PURE__*/React.createElement("b", null, roleNames && roleNames[role] ? roleNames[role] : role), ": ", displayContent);
 };
 module.exports = Message;
-},{"react":136}],6:[function(require,module,exports){
+},{"bens_ui_components":82,"react":136}],6:[function(require,module,exports){
 const React = require('react');
 const Chat = require('./Chat.react');
 const {
@@ -394,7 +450,8 @@ const {
 function Thread(props) {
   const {
     conversation,
-    dispatch
+    dispatch,
+    submitOnEnter
   } = props;
   const updateConversation = convo => {
     dispatch({
@@ -437,10 +494,11 @@ function Thread(props) {
         });
       }
     },
+    submitOnEnter: submitOnEnter,
     onClear: () => {
       const nextConvo = {
         ...conversation,
-        messages: []
+        messages: conversation.messages.filter(m => m.role == 'system')
       };
       updateConversation(nextConvo);
     },
@@ -449,6 +507,13 @@ function Thread(props) {
         ...conversation,
         messages: conversation.messages.slice(0, -1)
       };
+      updateConversation(nextConvo);
+    },
+    onEdit: (message, index) => {
+      const nextConvo = {
+        ...conversation
+      };
+      nextConvo.messages[index] = message;
       updateConversation(nextConvo);
     },
     showRole: true,
@@ -901,6 +966,13 @@ const conversationReducer = (state, action) => {
           awaitingResponse: action.awaitingResponse
         };
       }
+    case 'SET_EDITING_PREVIOUS':
+      {
+        return {
+          ...state,
+          isEditingPreviousMessage: action.isEditingPreviousMessage
+        };
+      }
     case 'SELECT_CONVERSATION':
       {
         const {
@@ -1049,6 +1121,7 @@ const rootReducer = (state, action) => {
     case 'ADD_CONVERSATION':
     case 'SET_CONVERSATION_NAME':
     case 'UPDATE_CONVERSATION':
+    case 'SET_EDITING_PREVIOUS':
     case 'SET_AWAITING':
     case 'DELETE_CONVERSATION':
       const nextState = conversationReducer(state, action);
@@ -1077,7 +1150,8 @@ const initState = () => {
       })
     },
     selectedConversation: selected ?? 'conversation 1',
-    awaitingResponse: false
+    awaitingResponse: false,
+    isEditingPreviousMessage: false
   };
 };
 module.exports = {
