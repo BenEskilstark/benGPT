@@ -5,11 +5,11 @@ const {
 const {useEffect, useState, useMemo} = React;
 
 const Message = (props) => {
-  const {roleNames, index, onEdit} = props;
+  const {roleNames, index, onEdit, name} = props;
   const {role, content} = props.message;
 
   useEffect(() => {
-    const elem = document.getElementById("text_area_" + index);
+    const elem = document.getElementById("text_area_" + name + "_" + index);
     elem.style.height = elem.scrollHeight + 'px';
   }, [content]);
 
@@ -17,7 +17,7 @@ const Message = (props) => {
   if (onEdit) {
     displayContent = (
       <TextArea
-        id={"text_area_" + index}
+        id={"text_area_" + name + "_" + index}
         style={{
           border: 'none',
           font: 'inherit',

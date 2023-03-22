@@ -97,6 +97,7 @@ function Chat(props) {
     messages.push( /*#__PURE__*/React.createElement(Message, {
       onEdit: onEdit,
       index: i,
+      name: conversation.name,
       message: conversation.messages[i],
       key: "message_" + i,
       roleNames: conversation.roleNames
@@ -373,20 +374,21 @@ const Message = props => {
   const {
     roleNames,
     index,
-    onEdit
+    onEdit,
+    name
   } = props;
   const {
     role,
     content
   } = props.message;
   useEffect(() => {
-    const elem = document.getElementById("text_area_" + index);
+    const elem = document.getElementById("text_area_" + name + "_" + index);
     elem.style.height = elem.scrollHeight + 'px';
   }, [content]);
   let displayContent = content;
   if (onEdit) {
     displayContent = /*#__PURE__*/React.createElement(TextArea, {
-      id: "text_area_" + index,
+      id: "text_area_" + name + "_" + index,
       style: {
         border: 'none',
         font: 'inherit',

@@ -34,7 +34,7 @@ function Chat(props) {
   for (let i = 0; i < conversation.messages.length; i++) {
     if (conversation.messages[i].role == 'system' && !showSystem) continue;
     messages.push(<Message
-      onEdit={onEdit} index={i}
+      onEdit={onEdit} index={i} name={conversation.name}
       message={conversation.messages[i]} key={"message_" + i}
       roleNames={conversation.roleNames}
     />);
