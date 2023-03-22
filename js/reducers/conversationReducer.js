@@ -12,6 +12,12 @@ const conversationReducer = (state, action) => {
         awaitingResponse: action.awaitingResponse,
       };
     }
+    case 'SET_EDITING_PREVIOUS': {
+      return {
+        ...state,
+        isEditingPreviousMessage: action.isEditingPreviousMessage,
+      };
+    }
     case 'SELECT_CONVERSATION': {
       const {selectedConversation} = action;
       return {

@@ -1,4 +1,5 @@
 
+  - should track visits
   - way to X out of import modal
   - way to bring back apiKey modal
   - submit/clear/undo should stack on top of each other when in big text mode
