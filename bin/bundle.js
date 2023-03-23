@@ -383,6 +383,18 @@ const Message = props => {
   } = props.message;
   useEffect(() => {
     const elem = document.getElementById("text_area_" + name + "_" + index);
+    // if (elem.style.height != elem.scrollHeight + 'px') {
+    if (index == 1) {
+      console.log(elem.style.height, elem.scrollHeight);
+    }
+    elem.style.height = 0;
+    setTimeout(() => {
+      elem.style.height = elem.scrollHeight + 'px';
+    }, 0);
+    // }
+  }, [name]);
+  useEffect(() => {
+    const elem = document.getElementById("text_area_" + name + "_" + index);
     elem.style.height = elem.scrollHeight + 'px';
   }, [content]);
   let displayContent = content;

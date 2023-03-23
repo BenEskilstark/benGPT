@@ -52,6 +52,10 @@ input[type=range]::-webkit-slider-thumb {
   display: none;
 }
 
+textarea {
+  /* all: unset; */
+}
+
 button {
   font-family: "Courier New", sans-serif;
 }

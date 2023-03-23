@@ -1,4 +1,6 @@
 
+  - chat messages should shrink correctly
+
   - should track visits
   - way to X out of import modal
   - way to bring back apiKey modal
