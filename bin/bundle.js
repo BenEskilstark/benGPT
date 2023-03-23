@@ -990,11 +990,10 @@ const axiosInstance = _axios.default.create({
   baseURL: 'https://benhub.io/analytics'
 });
 const postVisit = (path = '/index', map = 'GET') => {
-  console.log(path, map);
   const isUnique = !!!localStorage.getItem('isRevisit');
   localStorage.setItem('isRevisit', true);
   return axiosInstance.post('/visit', {
-    hostname: getHostname(),
+    hostname: 'benGPT',
     path,
     isUnique,
     map

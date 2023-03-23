@@ -13,7 +13,7 @@ const postVisit = (path = '/index', map = 'GET') => {
   localStorage.setItem('isRevisit', true);
   return axiosInstance
     .post('/visit', {
-      hostname: getHostname(), path, isUnique, map,
+      hostname: 'benGPT', path, isUnique, map,
     })
 };
 
