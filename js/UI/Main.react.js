@@ -6,6 +6,7 @@ const ThreadSidebar = require('./ThreadSidebar.react');
 const ApiKeyModal = require('./ApiKeyModal.react');
 const {useEnhancedReducer} = require('bens_ui_components');
 const {rootReducer, initState} = require('../reducers/rootReducer');
+import postVisit from '../postVisit';
 const {useState, useEffect, useMemo} = React;
 
 
@@ -17,6 +18,7 @@ function Main(props) {
   window.dispatch = dispatch;
 
   useEffect(() => {
+    postVisit();
     const apiKey = localStorage.getItem("gptAPIKey");
     if (!apiKey) {
       dispatch({type: 'SET_MODAL',
