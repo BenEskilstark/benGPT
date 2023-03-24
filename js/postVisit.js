@@ -9,7 +9,7 @@ const axiosInstance = axios.create({
 
 const postVisit = (path = '/index', map = 'GET') => {
   const hostname = getHostname();
-  const isUnique = !!!localStorage.getItem('isRevisit_' + hostname);
+  const isUnique = !localStorage.getItem('isRevisit_' + hostname);
   localStorage.setItem('isRevisit_' + hostname, true);
   return axiosInstance
     .post('/visit', {
