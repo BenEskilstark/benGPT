@@ -10,6 +10,7 @@ const ApiKeyModal = (props) => {
   return (
     <Modal
       title={"Paste conversation JSON"}
+      dismiss={() => dispatch({type: 'DISMISS_MODAL'})}
       body={
         <div
           style={{

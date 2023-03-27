@@ -17,8 +17,12 @@ const ApiKeyModal = (props) => {
           }}
         >
           The key you provide here will be saved to localStorage for next time.
+          It will not be stored on any server outside OpenAI's.
+          Get a key <a
+            target="_blank"
+            href="https://platform.openai.com/account/api-keys">here</a>.
           If your key gets rotated, then delete it in the console with
-          localStorage.removeItem("gptAPIKey")
+          localStorage.removeItem("gptAPIKey") and then refresh
           <TextField
             style={{
               width: '99%',
