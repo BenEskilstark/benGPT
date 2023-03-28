@@ -2,11 +2,4 @@
   - should also debounce name since renaming flickers the chat
   - way to bring back apiKey modal
   - submit/clear/undo should stack on top of each other when in big text mode
-  - should look OK on mobile too
 
-  - npm package
-    - set package.json correctly
-    - npm publish
-    - try requiring somewhere else
-      - clientside + UI components
-      - server side actually working too without leaking apikey

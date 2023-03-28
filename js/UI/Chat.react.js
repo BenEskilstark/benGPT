@@ -5,6 +5,7 @@ const {
   Dropdown, Checkbox,
 } = require('bens_ui_components');
 const Message = require('./Message.react');
+const {isMobile} = require('bens_utils').platform;
 const {useState, useMemo, useEffect, useRef} = React;
 
 /**
@@ -122,6 +123,15 @@ function Chat(props) {
     }});
   }, [curPrompt, role, showBigTextBox, submitToAPI, conversation, submitOnEnter]);
 
+  // for calculating the height of the message area vs input area
+  let inputAreaHeight = 45;
+  if (showBigTextBox) {
+    inputAreaHeight = 180;
+  }
+  if (isMobile()) {
+    inputAreaHeight += 25;
+  }
+
   return (
     <div
       style={{
@@ -136,7 +146,7 @@ function Chat(props) {
           // border: '1px solid black',
           backgroundColor: 'white',
           width: '100%',
-          height: `calc(100% - ${showBigTextBox ? '180px' : '45px'})`,
+          height: `calc(100% - ${inputAreaHeight}px`,
           overflowY: 'scroll',
           padding: 6,
           paddingBottom: 64,
@@ -149,6 +159,7 @@ function Chat(props) {
         <div ref={messagesEndRef} />
       </div>
 
+      {isMobile() ? textInput : null}
       <div
         style={{
           marginTop: 10,
@@ -177,7 +188,7 @@ function Chat(props) {
             />
           </React.Fragment>
         ) : null}
-        {textInput}
+        {!isMobile() ? textInput : null}
         <Button
           label="Submit"
           style={{fontSize: 16}}

@@ -1,8 +1,7 @@
 module.exports = {
-  ...require('./js/gpt'),
-  ...require('./js/serverSideGPT'),
-  Message: require('./js/UI/Message.react'),
-  Chat: require('./js/UI/Chat.react'),
-  Thread: require('./js/UI/Thread.react'),
-  conversationReducer: require('./js/reducers/conversationReducer'),
+  ...require('./bin/gpt'),
+  Message: require('./bin/UI/Message.react'),
+  Chat: require('./bin/UI/Chat.react'),
+  Thread: require('./bin/UI/Thread.react'),
+  ...require('./bin/reducers/conversationReducer'),
 }

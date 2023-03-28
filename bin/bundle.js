@@ -59,6 +59,9 @@ const {
 } = require('bens_ui_components');
 const Message = require('./Message.react');
 const {
+  isMobile
+} = require('bens_utils').platform;
+const {
   useState,
   useMemo,
   useEffect,
@@ -186,6 +189,15 @@ function Chat(props) {
       }
     });
   }, [curPrompt, role, showBigTextBox, submitToAPI, conversation, submitOnEnter]);
+
+  // for calculating the height of the message area vs input area
+  let inputAreaHeight = 45;
+  if (showBigTextBox) {
+    inputAreaHeight = 180;
+  }
+  if (isMobile()) {
+    inputAreaHeight += 25;
+  }
   return /*#__PURE__*/React.createElement("div", {
     style: {
       width: 400,
@@ -198,7 +210,7 @@ function Chat(props) {
       // border: '1px solid black',
       backgroundColor: 'white',
       width: '100%',
-      height: `calc(100% - ${showBigTextBox ? '180px' : '45px'})`,
+      height: `calc(100% - ${inputAreaHeight}px`,
       overflowY: 'scroll',
       padding: 6,
       paddingBottom: 64,
@@ -208,7 +220,7 @@ function Chat(props) {
     }
   }, messages, /*#__PURE__*/React.createElement("div", {
     ref: messagesEndRef
-  })), /*#__PURE__*/React.createElement("div", {
+  })), isMobile() ? textInput : null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 10,
       display: 'flex',
@@ -231,7 +243,7 @@ function Chat(props) {
     style: {
       display: 'inherit'
     }
-  })) : null, textInput, /*#__PURE__*/React.createElement(Button, {
+  })) : null, !isMobile() ? textInput : null, /*#__PURE__*/React.createElement(Button, {
     label: "Submit",
     style: {
       fontSize: 16
@@ -261,7 +273,7 @@ const submitPrompt = (role, onSubmit, curPrompt, setCurPrompt, submitToAPI) => {
   setCurPrompt('');
 };
 module.exports = Chat;
-},{"./Message.react":5,"bens_ui_components":83,"react":100}],3:[function(require,module,exports){
+},{"./Message.react":5,"bens_ui_components":83,"bens_utils":90,"react":100}],3:[function(require,module,exports){
 const React = require('react');
 const {
   Modal,
@@ -367,7 +379,8 @@ function Main(props) {
   }), /*#__PURE__*/React.createElement(Thread, {
     dispatch: dispatch,
     conversation: state.conversations[state.selectedConversation],
-    submitOnEnter: !state.isEditingPreviousMessage
+    submitOnEnter: !state.isEditingPreviousMessage,
+    style: {}
   }), state.modal);
 }
 module.exports = Main;
@@ -465,7 +478,6 @@ const Chat = require('./Chat.react');
 const {
   createConversation,
   submitConversation,
-  createAPI,
   addMessage
 } = require('../gpt');
 const {
@@ -482,7 +494,9 @@ function Thread(props) {
   const {
     conversation,
     dispatch,
-    submitOnEnter
+    submitOnEnter,
+    apiKey,
+    style
   } = props;
   const updateConversation = convo => {
     dispatch({
@@ -495,7 +509,8 @@ function Thread(props) {
       height: '100%',
       margin: 'none',
       marginTop: 0,
-      flexGrow: 1
+      flexGrow: 1,
+      ...style
     },
     conversation: conversation,
     onSubmit: (message, toAPI) => {
@@ -509,7 +524,7 @@ function Thread(props) {
           type: 'SET_AWAITING',
           awaitingResponse: true
         });
-        submitConversation(nextConversation).then(response => {
+        submitConversation(nextConversation, apiKey).then(response => {
           // console.log(response.usage, response.finishReason);
           const nextConvo = {
             ...addMessage(nextConversation, response.message),
@@ -561,7 +576,13 @@ const {
 const {
   Button
 } = require('bens_ui_components');
+const {
+  isMobile
+} = require('bens_utils').platform;
 const ThreadTitle = require('./ThreadTitle.react');
+const {
+  useState
+} = React;
 const ThreadSidebar = props => {
   const {
     state,
@@ -580,6 +601,7 @@ const ThreadSidebar = props => {
     }));
     i++;
   }
+  const [expanded, setExpanded] = useState(false);
   return /*#__PURE__*/React.createElement("div", {
     style: {
       width: 250,
@@ -590,9 +612,27 @@ const ThreadSidebar = props => {
       flexDirection: 'column',
       marginLeft: 5,
       gap: 15,
-      paddingTop: 15
+      paddingTop: 15,
+      ...(isMobile() && expanded ? {
+        backgroundColor: '#faf8ef',
+        position: 'absolute',
+        zIndex: 10,
+        left: 1
+      } : {})
     }
-  }, convoHeaders, /*#__PURE__*/React.createElement(Button, {
+  }, /*#__PURE__*/React.createElement(Button, {
+    label: expanded ? '<' : '>',
+    onClick: () => setExpanded(!expanded),
+    style: {
+      display: isMobile() ? 'block' : 'none',
+      position: 'absolute',
+      height: 25,
+      width: 30,
+      top: 0,
+      left: expanded ? 220 : 8,
+      zIndex: 10
+    }
+  }), convoHeaders, /*#__PURE__*/React.createElement(Button, {
     label: "New Conversation",
     style: {
       display: 'block',
@@ -616,7 +656,7 @@ const ThreadSidebar = props => {
   }));
 };
 module.exports = ThreadSidebar;
-},{"../gpt":10,"./ThreadTitle.react":8,"bens_ui_components":83,"react":100}],8:[function(require,module,exports){
+},{"../gpt":10,"./ThreadTitle.react":8,"bens_ui_components":83,"bens_utils":90,"react":100}],8:[function(require,module,exports){
 const React = require('react');
 const {
   createModelParams,
@@ -831,6 +871,9 @@ const axios = require('axios').default;
 const createConversation = (params, messages) => {
   return {
     model: 'gpt-3.5-turbo',
+    name: '',
+    tokens: 0,
+    placeholder: '',
     ...params,
     modelParams: params.modelParams ?? {},
     messages: messages ?? []
@@ -975,7 +1018,9 @@ exports.default = _default;
 
 },{"axios":16}],13:[function(require,module,exports){
 const {
-  createConversation
+  createConversation,
+  addMessage,
+  submitConversation
 } = require('../gpt');
 const {
   deepCopy
@@ -1098,8 +1143,46 @@ function addName(name, existingNames) {
   }
   return currentName;
 }
+
+// a standard on-submit function that pairs with this reducer
+// NOTE: doesn't really work in most situations :/
+const createOnSubmit = (getState, dispatch, apiKey) => {
+  return (message, toAPI) => {
+    let nextConversation = getState().conversation;
+    if (message.content != '') {
+      nextConversation = addMessage(nextConversation, message);
+      dispatch({
+        type: 'UPDATE_CONVERSATION',
+        conversation: nextConversation
+      });
+    }
+    if (toAPI) {
+      dispatch({
+        type: 'SET_AWAITING',
+        awaitingResponse: true
+      });
+      submitConversation(nextConversation, apiKey).then(response => {
+        const nextConvo = {
+          ...addMessage(nextConversation, response.message),
+          tokens: response.tokens
+        };
+        dispatch({
+          type: 'UPDATE_CONVERSATION',
+          conversation: nextConvo
+        });
+        dispatch({
+          type: 'SET_AWAITING',
+          awaitingResponse: false
+        });
+      }).catch(ex => {
+        console.error(ex);
+      });
+    }
+  };
+};
 module.exports = {
-  conversationReducer
+  conversationReducer,
+  createOnSubmit
 };
 },{"../gpt":10,"bens_utils":90}],14:[function(require,module,exports){
 const modalReducer = (state, action) => {

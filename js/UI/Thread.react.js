@@ -1,7 +1,7 @@
 const React = require('react');
 const Chat = require('./Chat.react');
 const {
-  createConversation, submitConversation, createAPI,
+  createConversation, submitConversation,
   addMessage,
 } = require('../gpt');
 const {useState, useEffect, useMemo} = React;
@@ -11,7 +11,9 @@ const {useState, useEffect, useMemo} = React;
  *  multiple threads at once
  */
 function Thread(props) {
-  const {conversation, dispatch, submitOnEnter} = props;
+  const {
+    conversation, dispatch, submitOnEnter, apiKey, style,
+  } = props;
 
   const updateConversation = (convo) => {
     dispatch({type: 'UPDATE_CONVERSATION', conversation: convo});
@@ -24,6 +26,7 @@ function Thread(props) {
         margin: 'none',
         marginTop: 0,
         flexGrow: 1,
+        ...style,
       }}
       conversation={conversation}
       onSubmit={(message, toAPI) => {
@@ -34,7 +37,7 @@ function Thread(props) {
         }
         if (toAPI) {
           dispatch({type: 'SET_AWAITING', awaitingResponse: true});
-          submitConversation(nextConversation)
+          submitConversation(nextConversation, apiKey)
             .then((response) => {
               // console.log(response.usage, response.finishReason);
               const nextConvo = {

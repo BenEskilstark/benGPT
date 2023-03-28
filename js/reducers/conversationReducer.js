@@ -1,5 +1,7 @@
 
-const {createConversation} = require('../gpt');
+const {
+  createConversation, addMessage, submitConversation,
+} = require('../gpt');
 const {deepCopy} = require('bens_utils').helpers;
 
 const conversationReducer = (state, action) => {
@@ -94,4 +96,30 @@ function addName(name, existingNames) {
   return currentName;
 }
 
-module.exports = {conversationReducer};
+// a standard on-submit function that pairs with this reducer
+// NOTE: doesn't really work in most situations :/
+const createOnSubmit = (getState, dispatch, apiKey) => {
+  return (message, toAPI) => {
+    let nextConversation = getState().conversation;
+    if (message.content != '') {
+      nextConversation = addMessage(nextConversation, message);
+      dispatch({type: 'UPDATE_CONVERSATION', conversation: nextConversation});
+    }
+    if (toAPI) {
+      dispatch({type: 'SET_AWAITING', awaitingResponse: true});
+      submitConversation(nextConversation, apiKey)
+        .then((response) => {
+          const nextConvo = {
+            ...addMessage(nextConversation, response.message),
+            tokens: response.tokens,
+          }
+          dispatch({type: 'UPDATE_CONVERSATION', conversation: nextConvo});
+          dispatch({type: 'SET_AWAITING', awaitingResponse: false});
+        }).catch((ex) => {
+          console.error(ex);
+        });
+    }
+  }
+}
+
+module.exports = {conversationReducer, createOnSubmit};
