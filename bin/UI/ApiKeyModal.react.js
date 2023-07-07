@@ -10,18 +10,20 @@ const {
 } = React;
 const ApiKeyModal = props => {
   const {
-    state,
     dispatch
   } = props;
-  const [apiKeyText, setApiKeyText] = useState('');
+  const [apiKeyText, setApiKeyText] = useState(localStorage.getItem('gptAPIKey') ?? '');
   return /*#__PURE__*/React.createElement(Modal, {
     title: "Provide API Key",
+    dismiss: () => dispatch({
+      type: 'DISMISS_MODAL'
+    }),
     body: /*#__PURE__*/React.createElement("div", {
       style: {}
     }, "The key you provide here will be saved to localStorage for next time. It will not be stored on any server outside OpenAI's. Get a key ", /*#__PURE__*/React.createElement("a", {
       target: "_blank",
       href: "https://platform.openai.com/account/api-keys"
-    }, "here"), ". If your key gets rotated, then delete it in the console with localStorage.removeItem(\"gptAPIKey\") and then refresh", /*#__PURE__*/React.createElement(TextField, {
+    }, "here"), ". If your key gets rotated, then click the NEW API KEY button to add a new one.", /*#__PURE__*/React.createElement(TextField, {
       style: {
         width: '99%'
       },

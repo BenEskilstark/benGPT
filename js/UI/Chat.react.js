@@ -59,7 +59,7 @@ function Chat(props) {
   let textInput = (
     <div
       style={{
-        width: 800,
+        width: '100%',
         position: 'relative',
       }}
     >
@@ -163,6 +163,7 @@ function Chat(props) {
       <div
         style={{
           marginTop: 10,
+          marginRight: 10,
           display: 'flex',
           flexDirection: 'row',
           gap: 10,
@@ -189,27 +190,36 @@ function Chat(props) {
           </React.Fragment>
         ) : null}
         {!isMobile() ? textInput : null}
-        <Button
-          label="Submit"
-          style={{fontSize: 16}}
-          onClick={() => {
-            submitPrompt(role, onSubmit, curPrompt, setCurPrompt, submitToAPI);
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: showBigTextBox ? 'column' : 'row',
+            gap: '10px',
+            alignSelf: 'flex-end',
           }}
-        />
-        {showClear ? (
-          <React.Fragment>
-            <Button
-              label="Undo"
-              style={{fontSize: 16}}
-              onClick={onUndo}
-            />
-            <Button
-              label="Clear"
-              style={{fontSize: 16}}
-              onClick={onClear}
-            />
-          </React.Fragment>
-        ) : null}
+        >
+          <Button
+            label="Submit"
+            style={{fontSize: 16}}
+            onClick={() => {
+              submitPrompt(role, onSubmit, curPrompt, setCurPrompt, submitToAPI);
+            }}
+          />
+          {showClear ? (
+            <React.Fragment>
+              <Button
+                label="Undo"
+                style={{fontSize: 16}}
+                onClick={onUndo}
+              />
+              <Button
+                label="Clear"
+                style={{fontSize: 16}}
+                onClick={onClear}
+              />
+            </React.Fragment>
+          ) : null}
+        </div>
       </div>
 
     </div>

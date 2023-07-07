@@ -1,5 +1,7 @@
 
+- Chat:
   - should also debounce name since renaming flickers the chat
-  - way to bring back apiKey modal
-  - submit/clear/undo should stack on top of each other when in big text mode
+  - default prompt toggle
+    "You are ChatGPT, a large language model trained by OpenAI. Follow the user's instructions carefully. Respond using markdown.";
 
+- Package:

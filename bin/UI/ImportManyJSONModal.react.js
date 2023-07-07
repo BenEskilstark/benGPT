@@ -1,16 +1,15 @@
 const React = require('react');
 const {
   Modal,
-  TextField
+  TextArea
 } = require('bens_ui_components');
 const {
   useEffect,
   useState,
   useMemo
 } = React;
-const ImportJSONModal = props => {
+const ImportManyJSONModal = props => {
   const {
-    conversation,
     dispatch
   } = props;
   const [convoJSON, setConvoJSON] = useState('');
@@ -21,7 +20,7 @@ const ImportJSONModal = props => {
     }),
     body: /*#__PURE__*/React.createElement("div", {
       style: {}
-    }, "The pasted JSON will overwrite whatever is in this conversation. The format is the same as what is exported by the COPY button", /*#__PURE__*/React.createElement(TextField, {
+    }, "The pasted JSON will create all new conversations. Name overlaps with conversations that already exist here will have numbers appended to the end. The format is the same as what is exported by the COPY ALL button", /*#__PURE__*/React.createElement(TextArea, {
       style: {
         width: '99%'
       },
@@ -32,13 +31,13 @@ const ImportJSONModal = props => {
     buttons: [{
       label: 'Import Conversation',
       onClick: () => {
-        dispatch({
-          type: 'UPDATE_CONVERSATION',
-          conversation: {
-            ...JSON.parse(convoJSON),
-            name: conversation.name
-          }
-        });
+        const conversations = JSON.parse(convoJSON);
+        for (const name in conversations) {
+          dispatch({
+            type: 'ADD_CONVERSATION',
+            conversation: conversations[name]
+          });
+        }
         dispatch({
           type: 'DISMISS_MODAL'
         });
@@ -47,4 +46,4 @@ const ImportJSONModal = props => {
     style: {}
   });
 };
-module.exports = ImportJSONModal;
+module.exports = ImportManyJSONModal;

@@ -11,18 +11,20 @@ const {
 } = React;
 const ApiKeyModal = props => {
   const {
-    state,
     dispatch
   } = props;
-  const [apiKeyText, setApiKeyText] = useState('');
+  const [apiKeyText, setApiKeyText] = useState(localStorage.getItem('gptAPIKey') ?? '');
   return /*#__PURE__*/React.createElement(Modal, {
     title: "Provide API Key",
+    dismiss: () => dispatch({
+      type: 'DISMISS_MODAL'
+    }),
     body: /*#__PURE__*/React.createElement("div", {
       style: {}
     }, "The key you provide here will be saved to localStorage for next time. It will not be stored on any server outside OpenAI's. Get a key ", /*#__PURE__*/React.createElement("a", {
       target: "_blank",
       href: "https://platform.openai.com/account/api-keys"
-    }, "here"), ". If your key gets rotated, then delete it in the console with localStorage.removeItem(\"gptAPIKey\") and then refresh", /*#__PURE__*/React.createElement(TextField, {
+    }, "here"), ". If your key gets rotated, then click the NEW API KEY button to add a new one.", /*#__PURE__*/React.createElement(TextField, {
       style: {
         width: '99%'
       },
@@ -43,7 +45,7 @@ const ApiKeyModal = props => {
   });
 };
 module.exports = ApiKeyModal;
-},{"bens_ui_components":83,"react":100}],2:[function(require,module,exports){
+},{"bens_ui_components":84,"react":101}],2:[function(require,module,exports){
 const React = require('react');
 const {
   Button,
@@ -129,7 +131,7 @@ function Chat(props) {
   const [showTextExpander, setShowTextExpander] = useState(false);
   let textInput = /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 800,
+      width: '100%',
       position: 'relative'
     }
   }, showBigTextBox ? /*#__PURE__*/React.createElement(TextArea, {
@@ -223,6 +225,7 @@ function Chat(props) {
   })), isMobile() ? textInput : null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 10,
+      marginRight: 10,
       display: 'flex',
       flexDirection: 'row',
       gap: 10,
@@ -243,7 +246,14 @@ function Chat(props) {
     style: {
       display: 'inherit'
     }
-  })) : null, !isMobile() ? textInput : null, /*#__PURE__*/React.createElement(Button, {
+  })) : null, !isMobile() ? textInput : null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: showBigTextBox ? 'column' : 'row',
+      gap: '10px',
+      alignSelf: 'flex-end'
+    }
+  }, /*#__PURE__*/React.createElement(Button, {
     label: "Submit",
     style: {
       fontSize: 16
@@ -263,7 +273,7 @@ function Chat(props) {
       fontSize: 16
     },
     onClick: onClear
-  })) : null));
+  })) : null)));
 }
 const submitPrompt = (role, onSubmit, curPrompt, setCurPrompt, submitToAPI) => {
   onSubmit({
@@ -273,7 +283,7 @@ const submitPrompt = (role, onSubmit, curPrompt, setCurPrompt, submitToAPI) => {
   setCurPrompt('');
 };
 module.exports = Chat;
-},{"./Message.react":5,"bens_ui_components":83,"bens_utils":90,"react":100}],3:[function(require,module,exports){
+},{"./Message.react":6,"bens_ui_components":84,"bens_utils":91,"react":101}],3:[function(require,module,exports){
 const React = require('react');
 const {
   Modal,
@@ -284,7 +294,7 @@ const {
   useState,
   useMemo
 } = React;
-const ApiKeyModal = props => {
+const ImportJSONModal = props => {
   const {
     conversation,
     dispatch
@@ -297,7 +307,7 @@ const ApiKeyModal = props => {
     }),
     body: /*#__PURE__*/React.createElement("div", {
       style: {}
-    }, "The pasted JSON will overwrite whatever is in this conversation. The format is the same as what is exported by the Export JSON button", /*#__PURE__*/React.createElement(TextField, {
+    }, "The pasted JSON will overwrite whatever is in this conversation. The format is the same as what is exported by the COPY button", /*#__PURE__*/React.createElement(TextField, {
       style: {
         width: '99%'
       },
@@ -323,8 +333,58 @@ const ApiKeyModal = props => {
     style: {}
   });
 };
-module.exports = ApiKeyModal;
-},{"bens_ui_components":83,"react":100}],4:[function(require,module,exports){
+module.exports = ImportJSONModal;
+},{"bens_ui_components":84,"react":101}],4:[function(require,module,exports){
+const React = require('react');
+const {
+  Modal,
+  TextArea
+} = require('bens_ui_components');
+const {
+  useEffect,
+  useState,
+  useMemo
+} = React;
+const ImportManyJSONModal = props => {
+  const {
+    dispatch
+  } = props;
+  const [convoJSON, setConvoJSON] = useState('');
+  return /*#__PURE__*/React.createElement(Modal, {
+    title: "Paste conversation JSON",
+    dismiss: () => dispatch({
+      type: 'DISMISS_MODAL'
+    }),
+    body: /*#__PURE__*/React.createElement("div", {
+      style: {}
+    }, "The pasted JSON will create all new conversations. Name overlaps with conversations that already exist here will have numbers appended to the end. The format is the same as what is exported by the COPY ALL button", /*#__PURE__*/React.createElement(TextArea, {
+      style: {
+        width: '99%'
+      },
+      value: convoJSON,
+      onChange: setConvoJSON,
+      placeholder: "JSON goes here"
+    })),
+    buttons: [{
+      label: 'Import Conversation',
+      onClick: () => {
+        const conversations = JSON.parse(convoJSON);
+        for (const name in conversations) {
+          dispatch({
+            type: 'ADD_CONVERSATION',
+            conversation: conversations[name]
+          });
+        }
+        dispatch({
+          type: 'DISMISS_MODAL'
+        });
+      }
+    }],
+    style: {}
+  });
+};
+module.exports = ImportManyJSONModal;
+},{"bens_ui_components":84,"react":101}],5:[function(require,module,exports){
 "use strict";
 
 var _postVisit = _interopRequireDefault(require("../postVisit"));
@@ -385,7 +445,7 @@ function Main(props) {
 }
 module.exports = Main;
 
-},{"../postVisit":12,"../reducers/rootReducer":15,"./ApiKeyModal.react":1,"./Chat.react":2,"./Thread.react":6,"./ThreadSidebar.react":7,"bens_ui_components":83,"react":100}],5:[function(require,module,exports){
+},{"../postVisit":13,"../reducers/rootReducer":16,"./ApiKeyModal.react":1,"./Chat.react":2,"./Thread.react":7,"./ThreadSidebar.react":8,"bens_ui_components":84,"react":101}],6:[function(require,module,exports){
 const React = require('react');
 const {
   TextArea
@@ -472,7 +532,7 @@ const Message = props => {
   }, /*#__PURE__*/React.createElement("b", null, roleNames && roleNames[role] ? roleNames[role] : role), ": ", displayContent);
 };
 module.exports = Message;
-},{"bens_ui_components":83,"bens_utils":90,"react":100}],6:[function(require,module,exports){
+},{"bens_ui_components":84,"bens_utils":91,"react":101}],7:[function(require,module,exports){
 const React = require('react');
 const Chat = require('./Chat.react');
 const {
@@ -568,10 +628,11 @@ function Thread(props) {
   });
 }
 module.exports = Thread;
-},{"../gpt":10,"./Chat.react":2,"react":100}],7:[function(require,module,exports){
+},{"../gpt":11,"./Chat.react":2,"react":101}],8:[function(require,module,exports){
 const React = require('react');
 const {
-  createConversation
+  createConversation,
+  createModelParams
 } = require('../gpt');
 const {
   Button
@@ -580,6 +641,8 @@ const {
   isMobile
 } = require('bens_utils').platform;
 const ThreadTitle = require('./ThreadTitle.react');
+const ImportManyJSONModal = require('./ImportManyJSONModal.react');
+const ApiKeyModal = require('./ApiKeyModal.react');
 const {
   useState
 } = React;
@@ -648,15 +711,53 @@ const ThreadSidebar = props => {
         conversation: createConversation({
           name: 'conversation ' + (Object.keys(state.conversations).length + 1),
           placeholder: 'Type anything...',
-          tokens: 0
+          tokens: 0,
+          modelParams: createModelParams()
         }),
         shouldSelect: true
       });
     }
-  }));
+  }), /*#__PURE__*/React.createElement(Button, {
+    label: "New API Key",
+    onClick: () => {
+      dispatch({
+        type: 'SET_MODAL',
+        modal: /*#__PURE__*/React.createElement(ApiKeyModal, {
+          dispatch: dispatch
+        })
+      });
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: '10px',
+      marginBottom: '15px'
+    }
+  }, /*#__PURE__*/React.createElement(Button, {
+    label: "Copy All",
+    style: {
+      fontSize: 15
+    },
+    onClick: () => {
+      navigator.clipboard.writeText(JSON.stringify(state.conversations));
+    }
+  }), /*#__PURE__*/React.createElement(Button, {
+    label: "Import Many",
+    style: {
+      fontSize: 15
+    },
+    onClick: () => {
+      dispatch({
+        type: 'SET_MODAL',
+        modal: /*#__PURE__*/React.createElement(ImportManyJSONModal, {
+          dispatch: dispatch
+        })
+      });
+    }
+  })));
 };
 module.exports = ThreadSidebar;
-},{"../gpt":10,"./ThreadTitle.react":8,"bens_ui_components":83,"bens_utils":90,"react":100}],8:[function(require,module,exports){
+},{"../gpt":11,"./ApiKeyModal.react":1,"./ImportManyJSONModal.react":4,"./ThreadTitle.react":9,"bens_ui_components":84,"bens_utils":91,"react":101}],9:[function(require,module,exports){
 const React = require('react');
 const {
   createModelParams,
@@ -665,9 +766,13 @@ const {
 const {
   Slider,
   Button,
-  TextField
+  TextField,
+  Dropdown
 } = require('bens_ui_components');
 const ImportJSONModal = require('./ImportJSONModal.react');
+const {
+  config
+} = require('../config');
 const {
   deepCopy
 } = require('bens_utils').helpers;
@@ -749,7 +854,7 @@ const ThreadTitle = props => {
     style: {
       fontSize: 12
     }
-  }, conversation.tokens, "/4096 tokens"), showParams && state.selectedConversation == name ? /*#__PURE__*/React.createElement(ModelParams, {
+  }, conversation.tokens, "/", conversation.modelParams.max_tokens, " tokens"), showParams && state.selectedConversation == name ? /*#__PURE__*/React.createElement(ModelParams, {
     conversation: conversation,
     dispatch: dispatch
   }) : null, /*#__PURE__*/React.createElement("div", {
@@ -806,7 +911,7 @@ const ModelParams = props => {
   const {
     modelParams
   } = conversation;
-  const bounds = getModelParamBounds();
+  const bounds = getModelParamBounds(conversation.model);
   const sliders = [];
   for (const param in bounds) {
     sliders.push( /*#__PURE__*/React.createElement(Slider, {
@@ -841,16 +946,39 @@ const ModelParams = props => {
   }
   return /*#__PURE__*/React.createElement("div", {
     style: {}
-  }, sliders);
+  }, "Model:", /*#__PURE__*/React.createElement(Dropdown, {
+    options: ['gpt-3.5-turbo', 'gpt-3.5-turbo-16k'],
+    onChange: model => {
+      dispatch({
+        type: 'UPDATE_CONVERSATION',
+        conversation: {
+          ...conversation,
+          model,
+          modelParams: {
+            ...conversation.modelParams,
+            max_tokens: config.modelToMaxTokens[model]
+          }
+        }
+      });
+    }
+  }), sliders);
 };
 module.exports = ThreadTitle;
-},{"../gpt":10,"./ImportJSONModal.react":3,"bens_ui_components":83,"bens_utils":90,"react":100}],9:[function(require,module,exports){
-const config = {};
+},{"../config":10,"../gpt":11,"./ImportJSONModal.react":3,"bens_ui_components":84,"bens_utils":91,"react":101}],10:[function(require,module,exports){
+const config = {
+  modelToMaxTokens: {
+    'gpt-3.5-turbo': 4096,
+    'gpt-3.5-turbo-16k': 16384
+  }
+};
 module.exports = {
   config
 };
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 const axios = require('axios').default;
+const {
+  config
+} = require('./config');
 
 /**
  *  Params:
@@ -871,6 +999,7 @@ const axios = require('axios').default;
 const createConversation = (params, messages) => {
   return {
     model: 'gpt-3.5-turbo',
+    // | 'gpt-3.5-turbo-16k'
     name: '',
     tokens: 0,
     placeholder: '',
@@ -879,17 +1008,17 @@ const createConversation = (params, messages) => {
     messages: messages ?? []
   };
 };
-const createModelParams = () => {
+const createModelParams = model => {
   return {
     temperature: 1,
     top_p: 1,
-    max_tokens: 4096,
+    max_tokens: model ? config.modelToMaxTokens[model] : 4096,
     n: 1,
     frequency_penalty: 0,
     presence_penalty: 0
   };
 };
-const getModelParamBounds = () => {
+const getModelParamBounds = model => {
   return {
     temperature: {
       min: 0,
@@ -903,7 +1032,7 @@ const getModelParamBounds = () => {
     },
     max_tokens: {
       min: 0,
-      max: 4096,
+      max: model ? config.modelToMaxTokens[model] : 4096,
       inc: 1
     },
     n: {
@@ -930,7 +1059,7 @@ const submitConversation = (conversation, apiKey) => {
 
   // HACK: need to prevent requesting too many tokens
   let max_tokens = Infinity;
-  if (conversation.modelParams.max_tokens && conversation.modelParams.max_tokens + conversation.tokens < 4096) {
+  if (conversation.modelParams.max_tokens && conversation.modelParams.max_tokens + conversation.tokens < config.modelToMaxTokens[conversation.model]) {
     max_tokens = conversation.modelParams.max_tokens;
   }
   return axiosInstance.post('', {
@@ -958,9 +1087,17 @@ const submitConversation = (conversation, apiKey) => {
   });
 };
 const addMessage = (conversation, message) => {
+  let messageToAdd = message;
+  if (typeof message == 'string') {
+    // allow just adding message as a string with role: user implied
+    messageToAdd = {
+      role: 'user',
+      content: message
+    };
+  }
   return {
     ...conversation,
-    messages: [...conversation.messages, message]
+    messages: [...conversation.messages, messageToAdd]
   };
 };
 module.exports = {
@@ -970,7 +1107,7 @@ module.exports = {
   createModelParams,
   getModelParamBounds
 };
-},{"axios":16}],11:[function(require,module,exports){
+},{"./config":10,"axios":17}],12:[function(require,module,exports){
 "use strict";
 
 var _Main = _interopRequireDefault(require("./UI/Main.react"));
@@ -983,7 +1120,7 @@ function renderUI(root) {
 const root = _client.default.createRoot(document.getElementById('container'));
 renderUI(root);
 
-},{"./UI/Main.react":4,"react":100,"react-dom/client":96}],12:[function(require,module,exports){
+},{"./UI/Main.react":5,"react":101,"react-dom/client":97}],13:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1016,7 +1153,7 @@ const getHostname = () => {
 var _default = postVisit;
 exports.default = _default;
 
-},{"axios":16}],13:[function(require,module,exports){
+},{"axios":17}],14:[function(require,module,exports){
 const {
   createConversation,
   addMessage,
@@ -1184,7 +1321,7 @@ module.exports = {
   conversationReducer,
   createOnSubmit
 };
-},{"../gpt":10,"bens_utils":90}],14:[function(require,module,exports){
+},{"../gpt":11,"bens_utils":91}],15:[function(require,module,exports){
 const modalReducer = (state, action) => {
   switch (action.type) {
     case 'DISMISS_MODAL':
@@ -1208,7 +1345,7 @@ const modalReducer = (state, action) => {
 module.exports = {
   modalReducer
 };
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 const {
   modalReducer
 } = require('./modalReducer');
@@ -1216,7 +1353,8 @@ const {
   conversationReducer
 } = require('./conversationReducer');
 const {
-  createConversation
+  createConversation,
+  createModelParams
 } = require('../gpt');
 const {
   config
@@ -1253,7 +1391,8 @@ const initState = () => {
       ['conversation 1']: createConversation({
         name: 'conversation 1',
         placeholder: 'Type anything...',
-        tokens: 0
+        tokens: 0,
+        modelParams: createModelParams()
       })
     },
     selectedConversation: selected ?? 'conversation 1',
@@ -1265,7 +1404,7 @@ module.exports = {
   rootReducer,
   initState
 };
-},{"../config":9,"../gpt":10,"./conversationReducer":13,"./modalReducer":14}],16:[function(require,module,exports){
+},{"../config":10,"../gpt":11,"./conversationReducer":14,"./modalReducer":15}],17:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1317,7 +1456,7 @@ exports.CanceledError = CanceledError;
 exports.AxiosError = AxiosError;
 exports.Axios = Axios;
 
-},{"./lib/axios.js":19}],17:[function(require,module,exports){
+},{"./lib/axios.js":20}],18:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1376,7 +1515,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{"../core/AxiosError.js":24,"../utils.js":58,"./http.js":45,"./xhr.js":18}],18:[function(require,module,exports){
+},{"../core/AxiosError.js":25,"../utils.js":59,"./http.js":46,"./xhr.js":19}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1603,7 +1742,7 @@ var _default = isXHRAdapterSupported && function (config) {
 };
 exports.default = _default;
 
-},{"../cancel/CanceledError.js":21,"../core/AxiosError.js":24,"../core/AxiosHeaders.js":25,"../core/buildFullPath.js":27,"../defaults/transitional.js":33,"../helpers/parseProtocol.js":47,"../helpers/speedometer.js":48,"../platform/index.js":57,"./../core/settle.js":30,"./../helpers/buildURL.js":38,"./../helpers/cookies.js":40,"./../helpers/isURLSameOrigin.js":44,"./../utils.js":58}],19:[function(require,module,exports){
+},{"../cancel/CanceledError.js":22,"../core/AxiosError.js":25,"../core/AxiosHeaders.js":26,"../core/buildFullPath.js":28,"../defaults/transitional.js":34,"../helpers/parseProtocol.js":48,"../helpers/speedometer.js":49,"../platform/index.js":58,"./../core/settle.js":31,"./../helpers/buildURL.js":39,"./../helpers/cookies.js":41,"./../helpers/isURLSameOrigin.js":45,"./../utils.js":59}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1694,7 +1833,7 @@ axios.default = axios;
 var _default = axios;
 exports.default = _default;
 
-},{"./cancel/CancelToken.js":20,"./cancel/CanceledError.js":21,"./cancel/isCancel.js":22,"./core/Axios.js":23,"./core/AxiosError.js":24,"./core/AxiosHeaders.js":25,"./core/mergeConfig.js":29,"./defaults/index.js":32,"./env/data.js":34,"./helpers/HttpStatusCode.js":36,"./helpers/bind.js":37,"./helpers/formDataToJSON.js":41,"./helpers/isAxiosError.js":43,"./helpers/spread.js":49,"./helpers/toFormData.js":50,"./utils.js":58}],20:[function(require,module,exports){
+},{"./cancel/CancelToken.js":21,"./cancel/CanceledError.js":22,"./cancel/isCancel.js":23,"./core/Axios.js":24,"./core/AxiosError.js":25,"./core/AxiosHeaders.js":26,"./core/mergeConfig.js":30,"./defaults/index.js":33,"./env/data.js":35,"./helpers/HttpStatusCode.js":37,"./helpers/bind.js":38,"./helpers/formDataToJSON.js":42,"./helpers/isAxiosError.js":44,"./helpers/spread.js":50,"./helpers/toFormData.js":51,"./utils.js":59}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1811,7 +1950,7 @@ class CancelToken {
 var _default = CancelToken;
 exports.default = _default;
 
-},{"./CanceledError.js":21}],21:[function(require,module,exports){
+},{"./CanceledError.js":22}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1841,7 +1980,7 @@ _utils.default.inherits(CanceledError, _AxiosError.default, {
 var _default = CanceledError;
 exports.default = _default;
 
-},{"../core/AxiosError.js":24,"../utils.js":58}],22:[function(require,module,exports){
+},{"../core/AxiosError.js":25,"../utils.js":59}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1852,7 +1991,7 @@ function isCancel(value) {
   return !!(value && value.__CANCEL__);
 }
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2026,7 +2165,7 @@ _utils.default.forEach(['post', 'put', 'patch'], function forEachMethodWithData(
 var _default = Axios;
 exports.default = _default;
 
-},{"../helpers/buildURL.js":38,"../helpers/validator.js":52,"./../utils.js":58,"./AxiosHeaders.js":25,"./InterceptorManager.js":26,"./buildFullPath.js":27,"./dispatchRequest.js":28,"./mergeConfig.js":29}],24:[function(require,module,exports){
+},{"../helpers/buildURL.js":39,"../helpers/validator.js":53,"./../utils.js":59,"./AxiosHeaders.js":26,"./InterceptorManager.js":27,"./buildFullPath.js":28,"./dispatchRequest.js":29,"./mergeConfig.js":30}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2112,7 +2251,7 @@ AxiosError.from = (error, code, config, request, response, customProps) => {
 var _default = AxiosError;
 exports.default = _default;
 
-},{"../utils.js":58}],25:[function(require,module,exports){
+},{"../utils.js":59}],26:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2333,7 +2472,7 @@ _utils.default.freezeMethods(AxiosHeaders);
 var _default = AxiosHeaders;
 exports.default = _default;
 
-},{"../helpers/parseHeaders.js":46,"../utils.js":58}],26:[function(require,module,exports){
+},{"../helpers/parseHeaders.js":47,"../utils.js":59}],27:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2410,7 +2549,7 @@ class InterceptorManager {
 var _default = InterceptorManager;
 exports.default = _default;
 
-},{"./../utils.js":58}],27:[function(require,module,exports){
+},{"./../utils.js":59}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2437,7 +2576,7 @@ function buildFullPath(baseURL, requestedURL) {
   return requestedURL;
 }
 
-},{"../helpers/combineURLs.js":39,"../helpers/isAbsoluteURL.js":42}],28:[function(require,module,exports){
+},{"../helpers/combineURLs.js":40,"../helpers/isAbsoluteURL.js":43}],29:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2505,7 +2644,7 @@ function dispatchRequest(config) {
   });
 }
 
-},{"../adapters/adapters.js":17,"../cancel/CanceledError.js":21,"../cancel/isCancel.js":22,"../core/AxiosHeaders.js":25,"../defaults/index.js":32,"./transformData.js":31}],29:[function(require,module,exports){
+},{"../adapters/adapters.js":18,"../cancel/CanceledError.js":22,"../cancel/isCancel.js":23,"../core/AxiosHeaders.js":26,"../defaults/index.js":33,"./transformData.js":32}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2614,7 +2753,7 @@ function mergeConfig(config1, config2) {
   return config;
 }
 
-},{"../utils.js":58,"./AxiosHeaders.js":25}],30:[function(require,module,exports){
+},{"../utils.js":59,"./AxiosHeaders.js":26}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2641,7 +2780,7 @@ function settle(resolve, reject, response) {
   }
 }
 
-},{"./AxiosError.js":24}],31:[function(require,module,exports){
+},{"./AxiosError.js":25}],32:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2672,7 +2811,7 @@ function transformData(fns, response) {
   return data;
 }
 
-},{"../core/AxiosHeaders.js":25,"../defaults/index.js":32,"./../utils.js":58}],32:[function(require,module,exports){
+},{"../core/AxiosHeaders.js":26,"../defaults/index.js":33,"./../utils.js":59}],33:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2810,7 +2949,7 @@ _utils.default.forEach(['post', 'put', 'patch'], function forEachMethodWithData(
 var _default = defaults;
 exports.default = _default;
 
-},{"../core/AxiosError.js":24,"../helpers/formDataToJSON.js":41,"../helpers/toFormData.js":50,"../helpers/toURLEncodedForm.js":51,"../platform/index.js":57,"../utils.js":58,"./transitional.js":33}],33:[function(require,module,exports){
+},{"../core/AxiosError.js":25,"../helpers/formDataToJSON.js":42,"../helpers/toFormData.js":51,"../helpers/toURLEncodedForm.js":52,"../platform/index.js":58,"../utils.js":59,"./transitional.js":34}],34:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2824,7 +2963,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2834,7 +2973,7 @@ exports.VERSION = void 0;
 const VERSION = "1.3.4";
 exports.VERSION = VERSION;
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2893,7 +3032,7 @@ prototype.toString = function toString(encoder) {
 var _default = AxiosURLSearchParams;
 exports.default = _default;
 
-},{"./toFormData.js":50}],36:[function(require,module,exports){
+},{"./toFormData.js":51}],37:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2971,7 +3110,7 @@ Object.entries(HttpStatusCode).forEach(([key, value]) => {
 var _default = HttpStatusCode;
 exports.default = _default;
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2984,7 +3123,7 @@ function bind(fn, thisArg) {
   };
 }
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3038,7 +3177,7 @@ function buildURL(url, params, options) {
   return url;
 }
 
-},{"../helpers/AxiosURLSearchParams.js":35,"../utils.js":58}],39:[function(require,module,exports){
+},{"../helpers/AxiosURLSearchParams.js":36,"../utils.js":59}],40:[function(require,module,exports){
 'use strict';
 
 /**
@@ -3057,7 +3196,7 @@ function combineURLs(baseURL, relativeURL) {
   return relativeURL ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '') : baseURL;
 }
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3109,7 +3248,7 @@ function nonStandardBrowserEnv() {
 }();
 exports.default = _default;
 
-},{"../platform/index.js":57,"./../utils.js":58}],41:[function(require,module,exports){
+},{"../platform/index.js":58,"./../utils.js":59}],42:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3197,7 +3336,7 @@ function formDataToJSON(formData) {
 var _default = formDataToJSON;
 exports.default = _default;
 
-},{"../utils.js":58}],42:[function(require,module,exports){
+},{"../utils.js":59}],43:[function(require,module,exports){
 'use strict';
 
 /**
@@ -3218,7 +3357,7 @@ function isAbsoluteURL(url) {
   return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
 }
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3238,7 +3377,7 @@ function isAxiosError(payload) {
   return _utils.default.isObject(payload) && payload.isAxiosError === true;
 }
 
-},{"./../utils.js":58}],44:[function(require,module,exports){
+},{"./../utils.js":59}],45:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3304,7 +3443,7 @@ function nonStandardBrowserEnv() {
 }();
 exports.default = _default;
 
-},{"../platform/index.js":57,"./../utils.js":58}],45:[function(require,module,exports){
+},{"../platform/index.js":58,"./../utils.js":59}],46:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3315,7 +3454,7 @@ exports.default = void 0;
 var _default = null;
 exports.default = _default;
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3368,7 +3507,7 @@ var _default = rawHeaders => {
 };
 exports.default = _default;
 
-},{"./../utils.js":58}],47:[function(require,module,exports){
+},{"./../utils.js":59}],48:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3380,7 +3519,7 @@ function parseProtocol(url) {
   return match && match[1] || '';
 }
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 'use strict';
 
 /**
@@ -3429,7 +3568,7 @@ function speedometer(samplesCount, min) {
 var _default = speedometer;
 exports.default = _default;
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 'use strict';
 
 /**
@@ -3463,7 +3602,7 @@ function spread(callback) {
   };
 }
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 (function (Buffer){(function (){
 'use strict';
 
@@ -3660,7 +3799,7 @@ var _default = toFormData;
 exports.default = _default;
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"../core/AxiosError.js":24,"../platform/node/classes/FormData.js":45,"../utils.js":58,"buffer":91}],51:[function(require,module,exports){
+},{"../core/AxiosError.js":25,"../platform/node/classes/FormData.js":46,"../utils.js":59,"buffer":92}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3683,7 +3822,7 @@ function toURLEncodedForm(data, options) {
   }, options));
 }
 
-},{"../platform/index.js":57,"../utils.js":58,"./toFormData.js":50}],52:[function(require,module,exports){
+},{"../platform/index.js":58,"../utils.js":59,"./toFormData.js":51}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3769,7 +3908,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{"../core/AxiosError.js":24,"../env/data.js":34}],53:[function(require,module,exports){
+},{"../core/AxiosError.js":25,"../env/data.js":35}],54:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3779,7 +3918,7 @@ exports.default = void 0;
 var _default = typeof Blob !== 'undefined' ? Blob : null;
 exports.default = _default;
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3789,7 +3928,7 @@ exports.default = void 0;
 var _default = typeof FormData !== 'undefined' ? FormData : null;
 exports.default = _default;
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3801,7 +3940,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var _default = typeof URLSearchParams !== 'undefined' ? URLSearchParams : _AxiosURLSearchParams.default;
 exports.default = _default;
 
-},{"../../../helpers/AxiosURLSearchParams.js":35}],56:[function(require,module,exports){
+},{"../../../helpers/AxiosURLSearchParams.js":36}],57:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3864,7 +4003,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{"./classes/Blob.js":53,"./classes/FormData.js":54,"./classes/URLSearchParams.js":55}],57:[function(require,module,exports){
+},{"./classes/Blob.js":54,"./classes/FormData.js":55,"./classes/URLSearchParams.js":56}],58:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3879,7 +4018,7 @@ Object.defineProperty(exports, "default", {
 var _index = _interopRequireDefault(require("./node/index.js"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./node/index.js":56}],58:[function(require,module,exports){
+},{"./node/index.js":57}],59:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -4560,7 +4699,7 @@ var _default = {
 exports.default = _default;
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./helpers/bind.js":37}],59:[function(require,module,exports){
+},{"./helpers/bind.js":38}],60:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -4712,7 +4851,7 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 const React = require('react');
 const Button = require('./Button.react');
 const {
@@ -4785,7 +4924,7 @@ const AudioWidget = props => {
   }));
 };
 module.exports = AudioWidget;
-},{"./Button.react":62,"react":100}],61:[function(require,module,exports){
+},{"./Button.react":63,"react":101}],62:[function(require,module,exports){
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 const React = require('react');
 const CheckerBackground = require('./CheckerBackground.react.js');
@@ -4904,7 +5043,7 @@ const Piece = props => {
   }, props.sprite);
 };
 module.exports = Board;
-},{"./CheckerBackground.react.js":65,"./DragArea.react.js":67,"react":100}],62:[function(require,module,exports){
+},{"./CheckerBackground.react.js":66,"./DragArea.react.js":68,"react":101}],63:[function(require,module,exports){
 const React = require('react');
 const {
   useState,
@@ -4978,7 +5117,7 @@ function Button(props) {
   }, props.label);
 }
 module.exports = Button;
-},{"react":100}],63:[function(require,module,exports){
+},{"react":101}],64:[function(require,module,exports){
 const React = require('react');
 const {
   useResponsiveDimensions
@@ -5041,7 +5180,7 @@ function Canvas(props) {
   }));
 }
 module.exports = Canvas;
-},{"./hooks":81,"react":100}],64:[function(require,module,exports){
+},{"./hooks":82,"react":101}],65:[function(require,module,exports){
 const React = require('react');
 
 /**
@@ -5077,7 +5216,7 @@ function Checkbox(props) {
   }
 }
 module.exports = Checkbox;
-},{"react":100}],65:[function(require,module,exports){
+},{"react":101}],66:[function(require,module,exports){
 const React = require('react');
 
 /**
@@ -5125,7 +5264,7 @@ const CheckerBackground = props => {
   }, squares);
 };
 module.exports = CheckerBackground;
-},{"react":100}],66:[function(require,module,exports){
+},{"react":101}],67:[function(require,module,exports){
 const React = require('react');
 function Divider(props) {
   const {
@@ -5141,7 +5280,7 @@ function Divider(props) {
   });
 }
 module.exports = Divider;
-},{"react":100}],67:[function(require,module,exports){
+},{"react":101}],68:[function(require,module,exports){
 const React = require('react');
 const {
   useMouseHandler,
@@ -5401,7 +5540,7 @@ const clampToArea = (dragAreaID, pixel, style) => {
   };
 };
 module.exports = DragArea;
-},{"./hooks":81,"bens_utils":90,"react":100}],68:[function(require,module,exports){
+},{"./hooks":82,"bens_utils":91,"react":101}],69:[function(require,module,exports){
 const React = require('react');
 
 /**
@@ -5439,7 +5578,7 @@ const Dropdown = function (props) {
   }, optionTags);
 };
 module.exports = Dropdown;
-},{"react":100}],69:[function(require,module,exports){
+},{"react":101}],70:[function(require,module,exports){
 const React = require('react');
 const {
   useEffect,
@@ -5485,7 +5624,7 @@ const usePrevious = value => {
   return ref.current;
 };
 module.exports = Indicator;
-},{"react":100}],70:[function(require,module,exports){
+},{"react":101}],71:[function(require,module,exports){
 const React = require('react');
 const InfoCard = props => {
   const overrideStyle = props.style || {};
@@ -5509,7 +5648,7 @@ const InfoCard = props => {
   }, props.children);
 };
 module.exports = InfoCard;
-},{"react":100}],71:[function(require,module,exports){
+},{"react":101}],72:[function(require,module,exports){
 const React = require('react');
 const Button = require('./Button.react');
 const Divider = require('./Divider.react');
@@ -5602,7 +5741,7 @@ function Modal(props) {
   }, buttonHTML)));
 }
 module.exports = Modal;
-},{"./Button.react":62,"./Divider.react":66,"react":100}],72:[function(require,module,exports){
+},{"./Button.react":63,"./Divider.react":67,"react":101}],73:[function(require,module,exports){
 const React = require('react');
 const {
   useState,
@@ -5684,7 +5823,7 @@ const submitValue = (onChange, nextVal, onlyInt) => {
   }
 };
 module.exports = NumberField;
-},{"react":100}],73:[function(require,module,exports){
+},{"react":101}],74:[function(require,module,exports){
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 /**
  * See ~/Code/teaching/clusters for an example of how to use the plot
@@ -5972,7 +6111,7 @@ const PlotWatcher = props => {
   }));
 };
 module.exports = PlotWatcher;
-},{"./Button.react":62,"./Canvas.react":63,"react":100}],74:[function(require,module,exports){
+},{"./Button.react":63,"./Canvas.react":64,"react":101}],75:[function(require,module,exports){
 const React = require('react');
 const Button = require('./Button.react');
 const Modal = require('./Modal.react');
@@ -6055,7 +6194,7 @@ const quitGameModal = dispatch => {
   });
 };
 module.exports = QuitButton;
-},{"./Button.react":62,"./Modal.react":71,"bens_utils":90,"react":100}],75:[function(require,module,exports){
+},{"./Button.react":63,"./Modal.react":72,"bens_utils":91,"react":101}],76:[function(require,module,exports){
 const React = require('react');
 
 // props:
@@ -6088,7 +6227,7 @@ class RadioPicker extends React.Component {
   }
 }
 module.exports = RadioPicker;
-},{"react":100}],76:[function(require,module,exports){
+},{"react":101}],77:[function(require,module,exports){
 const React = require('react');
 const NumberField = require('./NumberField.react');
 const {
@@ -6165,7 +6304,7 @@ function Slider(props) {
   }), props.noOriginalValue ? null : "(" + originalValue + ")"));
 }
 module.exports = Slider;
-},{"./NumberField.react":72,"react":100}],77:[function(require,module,exports){
+},{"./NumberField.react":73,"react":101}],78:[function(require,module,exports){
 const React = require('react');
 
 /**
@@ -6209,7 +6348,7 @@ const SpriteSheet = props => {
   }));
 };
 module.exports = SpriteSheet;
-},{"react":100}],78:[function(require,module,exports){
+},{"react":101}],79:[function(require,module,exports){
 const React = require('react');
 const Button = require('./Button.react');
 const Dropdown = require('./Dropdown.react');
@@ -6396,7 +6535,7 @@ function Table(props) {
   }, props.hideNumRows ? null : /*#__PURE__*/React.createElement("span", null, "Total Rows: ", rows.length, " Rows Displayed: ", filteredRows.length), /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, headers)), /*#__PURE__*/React.createElement("tbody", null, rowHTML)));
 }
 module.exports = Table;
-},{"./Button.react":62,"./Dropdown.react":68,"react":100}],79:[function(require,module,exports){
+},{"./Button.react":63,"./Dropdown.react":69,"react":101}],80:[function(require,module,exports){
 const React = require('react');
 
 /**
@@ -6444,7 +6583,7 @@ const TextArea = props => {
   });
 };
 module.exports = TextArea;
-},{"react":100}],80:[function(require,module,exports){
+},{"react":101}],81:[function(require,module,exports){
 const React = require('react');
 
 /**
@@ -6486,7 +6625,7 @@ const TextField = props => {
   });
 };
 module.exports = TextField;
-},{"react":100}],81:[function(require,module,exports){
+},{"react":101}],82:[function(require,module,exports){
 const React = require('react');
 const {
   throttle
@@ -6977,7 +7116,7 @@ module.exports = {
   useCompare,
   usePrevious
 };
-},{"bens_utils":90,"react":100}],82:[function(require,module,exports){
+},{"bens_utils":91,"react":101}],83:[function(require,module,exports){
 // type Point = {
 //   x: number,
 //   y: number,
@@ -7062,7 +7201,7 @@ const plotReducer = (state, action) => {
 module.exports = {
   plotReducer
 };
-},{}],83:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 
 // const React = require('react');
 // const ReactDOM = require('react-dom');
@@ -7097,7 +7236,7 @@ module.exports = {
 
 
 
-},{"./bin/AudioWidget.react.js":60,"./bin/Board.react.js":61,"./bin/Button.react.js":62,"./bin/Canvas.react.js":63,"./bin/Checkbox.react.js":64,"./bin/CheckerBackground.react.js":65,"./bin/Divider.react.js":66,"./bin/DragArea.react.js":67,"./bin/Dropdown.react.js":68,"./bin/Indicator.react.js":69,"./bin/InfoCard.react.js":70,"./bin/Modal.react.js":71,"./bin/NumberField.react.js":72,"./bin/Plot.react.js":73,"./bin/QuitButton.react.js":74,"./bin/RadioPicker.react.js":75,"./bin/Slider.react.js":76,"./bin/SpriteSheet.react.js":77,"./bin/Table.react.js":78,"./bin/TextArea.react.js":79,"./bin/TextField.react.js":80,"./bin/hooks.js":81,"./bin/plotReducer.js":82}],84:[function(require,module,exports){
+},{"./bin/AudioWidget.react.js":61,"./bin/Board.react.js":62,"./bin/Button.react.js":63,"./bin/Canvas.react.js":64,"./bin/Checkbox.react.js":65,"./bin/CheckerBackground.react.js":66,"./bin/Divider.react.js":67,"./bin/DragArea.react.js":68,"./bin/Dropdown.react.js":69,"./bin/Indicator.react.js":70,"./bin/InfoCard.react.js":71,"./bin/Modal.react.js":72,"./bin/NumberField.react.js":73,"./bin/Plot.react.js":74,"./bin/QuitButton.react.js":75,"./bin/RadioPicker.react.js":76,"./bin/Slider.react.js":77,"./bin/SpriteSheet.react.js":78,"./bin/Table.react.js":79,"./bin/TextArea.react.js":80,"./bin/TextField.react.js":81,"./bin/hooks.js":82,"./bin/plotReducer.js":83}],85:[function(require,module,exports){
 'use strict';
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -7261,7 +7400,7 @@ module.exports = {
   getEntityPositions: getEntityPositions,
   entityInsideGrid: entityInsideGrid
 };
-},{"./helpers":85,"./math":86,"./vectors":89}],85:[function(require,module,exports){
+},{"./helpers":86,"./math":87,"./vectors":90}],86:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -7425,7 +7564,7 @@ module.exports = {
   deepCopy: deepCopy,
   throttle: throttle, debounce: debounce
 };
-},{"./vectors":89}],86:[function(require,module,exports){
+},{"./vectors":90}],87:[function(require,module,exports){
 "use strict";
 
 var clamp = function clamp(val, min, max) {
@@ -7470,7 +7609,7 @@ module.exports = {
   clamp: clamp,
   subtractWithDeficit: subtractWithDeficit
 };
-},{}],87:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 'use strict';
 
 function isIpad() {
@@ -7501,7 +7640,7 @@ module.exports = {
   isMobile: isMobile,
   isPhone: isPhone
 };
-},{}],88:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 "use strict";
 
 var floor = Math.floor,
@@ -7556,7 +7695,7 @@ module.exports = {
   oneOf: oneOf,
   weightedOneOf: weightedOneOf
 };
-},{}],89:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -7755,7 +7894,7 @@ module.exports = {
   rotate: rotate,
   abs: abs
 };
-},{}],90:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 
 module.exports = {
   vectors: require('./bin/vectors'),
@@ -7766,7 +7905,7 @@ module.exports = {
   math: require('./bin/math'),
 }
 
-},{"./bin/gridHelpers":84,"./bin/helpers":85,"./bin/math":86,"./bin/platform":87,"./bin/stochastic":88,"./bin/vectors":89}],91:[function(require,module,exports){
+},{"./bin/gridHelpers":85,"./bin/helpers":86,"./bin/math":87,"./bin/platform":88,"./bin/stochastic":89,"./bin/vectors":90}],92:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -9547,7 +9686,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":59,"buffer":91,"ieee754":92}],92:[function(require,module,exports){
+},{"base64-js":60,"buffer":92,"ieee754":93}],93:[function(require,module,exports){
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
@@ -9634,7 +9773,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],93:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -9820,7 +9959,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],94:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 (function (process){(function (){
 /**
  * @license React
@@ -14775,7 +14914,7 @@ if(/^(https?|file):$/.test(protocol)){// eslint-disable-next-line react-internal
 console.info('%cDownload the React DevTools '+'for a better development experience: '+'https://reactjs.org/link/react-devtools'+(protocol==='file:'?'\nYou might need to use a local HTTP server (instead of file://): '+'https://reactjs.org/link/react-devtools-faq':''),'font-weight:bold');}}}}exports.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED=Internals;exports.createPortal=createPortal$1;exports.createRoot=createRoot$1;exports.findDOMNode=findDOMNode;exports.flushSync=flushSync$1;exports.hydrate=hydrate;exports.hydrateRoot=hydrateRoot$1;exports.render=render;exports.unmountComponentAtNode=unmountComponentAtNode;exports.unstable_batchedUpdates=batchedUpdates$1;exports.unstable_renderSubtreeIntoContainer=renderSubtreeIntoContainer;exports.version=ReactVersion;/* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */if(typeof __REACT_DEVTOOLS_GLOBAL_HOOK__!=='undefined'&&typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop==='function'){__REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(new Error());}})();}
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":93,"react":100,"scheduler":103}],95:[function(require,module,exports){
+},{"_process":94,"react":101,"scheduler":104}],96:[function(require,module,exports){
 /**
  * @license React
  * react-dom.production.min.js
@@ -15100,7 +15239,7 @@ exports.hydrateRoot=function(a,b,c){if(!ol(a))throw Error(p(405));var d=null!=c&
 e);return new nl(b)};exports.render=function(a,b,c){if(!pl(b))throw Error(p(200));return sl(null,a,b,!1,c)};exports.unmountComponentAtNode=function(a){if(!pl(a))throw Error(p(40));return a._reactRootContainer?(Sk(function(){sl(null,null,a,!1,function(){a._reactRootContainer=null;a[uf]=null})}),!0):!1};exports.unstable_batchedUpdates=Rk;
 exports.unstable_renderSubtreeIntoContainer=function(a,b,c,d){if(!pl(c))throw Error(p(200));if(null==a||void 0===a._reactInternals)throw Error(p(38));return sl(a,b,c,!1,d)};exports.version="18.2.0-next-9e3b772b8-20220608";
 
-},{"react":100,"scheduler":103}],96:[function(require,module,exports){
+},{"react":101,"scheduler":104}],97:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -15129,7 +15268,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":93,"react-dom":97}],97:[function(require,module,exports){
+},{"_process":94,"react-dom":98}],98:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -15171,7 +15310,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react-dom.development.js":94,"./cjs/react-dom.production.min.js":95,"_process":93}],98:[function(require,module,exports){
+},{"./cjs/react-dom.development.js":95,"./cjs/react-dom.production.min.js":96,"_process":94}],99:[function(require,module,exports){
 (function (process){(function (){
 /**
  * @license React
@@ -17576,7 +17715,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":93}],99:[function(require,module,exports){
+},{"_process":94}],100:[function(require,module,exports){
 /**
  * @license React
  * react.production.min.js
@@ -17604,7 +17743,7 @@ exports.useCallback=function(a,b){return U.current.useCallback(a,b)};exports.use
 exports.useInsertionEffect=function(a,b){return U.current.useInsertionEffect(a,b)};exports.useLayoutEffect=function(a,b){return U.current.useLayoutEffect(a,b)};exports.useMemo=function(a,b){return U.current.useMemo(a,b)};exports.useReducer=function(a,b,e){return U.current.useReducer(a,b,e)};exports.useRef=function(a){return U.current.useRef(a)};exports.useState=function(a){return U.current.useState(a)};exports.useSyncExternalStore=function(a,b,e){return U.current.useSyncExternalStore(a,b,e)};
 exports.useTransition=function(){return U.current.useTransition()};exports.version="18.2.0";
 
-},{}],100:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -17615,7 +17754,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react.development.js":98,"./cjs/react.production.min.js":99,"_process":93}],101:[function(require,module,exports){
+},{"./cjs/react.development.js":99,"./cjs/react.production.min.js":100,"_process":94}],102:[function(require,module,exports){
 (function (process,setImmediate){(function (){
 /**
  * @license React
@@ -18253,7 +18392,7 @@ if (
 }
 
 }).call(this)}).call(this,require('_process'),require("timers").setImmediate)
-},{"_process":93,"timers":104}],102:[function(require,module,exports){
+},{"_process":94,"timers":105}],103:[function(require,module,exports){
 (function (setImmediate){(function (){
 /**
  * @license React
@@ -18276,7 +18415,7 @@ exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();"
 exports.unstable_shouldYield=M;exports.unstable_wrapCallback=function(a){var b=y;return function(){var c=y;y=b;try{return a.apply(this,arguments)}finally{y=c}}};
 
 }).call(this)}).call(this,require("timers").setImmediate)
-},{"timers":104}],103:[function(require,module,exports){
+},{"timers":105}],104:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -18287,7 +18426,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/scheduler.development.js":101,"./cjs/scheduler.production.min.js":102,"_process":93}],104:[function(require,module,exports){
+},{"./cjs/scheduler.development.js":102,"./cjs/scheduler.production.min.js":103,"_process":94}],105:[function(require,module,exports){
 (function (setImmediate,clearImmediate){(function (){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -18366,4 +18505,4 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this)}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":93,"timers":104}]},{},[11]);
+},{"process/browser.js":94,"timers":105}]},{},[12]);

@@ -1,7 +1,8 @@
 const React = require('react');
 const {createModelParams, getModelParamBounds} = require('../gpt');
-const {Slider, Button, TextField} = require('bens_ui_components');
+const {Slider, Button, TextField, Dropdown} = require('bens_ui_components');
 const ImportJSONModal = require('./ImportJSONModal.react');
+const {config} = require('../config');
 const {deepCopy} = require('bens_utils').helpers;
 const {useEffect, useState, useMemo} = React;
 
@@ -80,7 +81,7 @@ const ThreadTitle = (props) => {
           fontSize: 12,
         }}
       >
-        {conversation.tokens}/4096 tokens
+        {conversation.tokens}/{conversation.modelParams.max_tokens} tokens
       </div>
       {showParams && state.selectedConversation == name ? (<ModelParams
         conversation={conversation} dispatch={dispatch} />) : null
@@ -142,7 +143,7 @@ const ThreadTitle = (props) => {
 const ModelParams = (props) => {
   const {conversation, dispatch} = props;
   const {modelParams} = conversation;
-  const bounds = getModelParamBounds();
+  const bounds = getModelParamBounds(conversation.model);
 
   const sliders = [];
   for (const param in bounds) {
@@ -183,6 +184,25 @@ const ModelParams = (props) => {
 
       }}
     >
+      Model:
+      <Dropdown
+        options={[
+          'gpt-3.5-turbo',
+          'gpt-3.5-turbo-16k',
+        ]}
+        onChange={(model) => {
+          dispatch({type: 'UPDATE_CONVERSATION',
+            conversation: {
+              ...conversation,
+              model,
+              modelParams: {
+                ...conversation.modelParams,
+                max_tokens: config.modelToMaxTokens[model],
+              },
+            },
+          });
+        }}
+      />
       {sliders}
     </div>
   );

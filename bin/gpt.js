@@ -1,4 +1,7 @@
 const axios = require('axios').default;
+const {
+  config
+} = require('./config');
 
 /**
  *  Params:
@@ -19,6 +22,7 @@ const axios = require('axios').default;
 const createConversation = (params, messages) => {
   return {
     model: 'gpt-3.5-turbo',
+    // | 'gpt-3.5-turbo-16k'
     name: '',
     tokens: 0,
     placeholder: '',
@@ -27,17 +31,17 @@ const createConversation = (params, messages) => {
     messages: messages ?? []
   };
 };
-const createModelParams = () => {
+const createModelParams = model => {
   return {
     temperature: 1,
     top_p: 1,
-    max_tokens: 4096,
+    max_tokens: model ? config.modelToMaxTokens[model] : 4096,
     n: 1,
     frequency_penalty: 0,
     presence_penalty: 0
   };
 };
-const getModelParamBounds = () => {
+const getModelParamBounds = model => {
   return {
     temperature: {
       min: 0,
@@ -51,7 +55,7 @@ const getModelParamBounds = () => {
     },
     max_tokens: {
       min: 0,
-      max: 4096,
+      max: model ? config.modelToMaxTokens[model] : 4096,
       inc: 1
     },
     n: {
@@ -78,7 +82,7 @@ const submitConversation = (conversation, apiKey) => {
 
   // HACK: need to prevent requesting too many tokens
   let max_tokens = Infinity;
-  if (conversation.modelParams.max_tokens && conversation.modelParams.max_tokens + conversation.tokens < 4096) {
+  if (conversation.modelParams.max_tokens && conversation.modelParams.max_tokens + conversation.tokens < config.modelToMaxTokens[conversation.model]) {
     max_tokens = conversation.modelParams.max_tokens;
   }
   return axiosInstance.post('', {
@@ -106,9 +110,17 @@ const submitConversation = (conversation, apiKey) => {
   });
 };
 const addMessage = (conversation, message) => {
+  let messageToAdd = message;
+  if (typeof message == 'string') {
+    // allow just adding message as a string with role: user implied
+    messageToAdd = {
+      role: 'user',
+      content: message
+    };
+  }
   return {
     ...conversation,
-    messages: [...conversation.messages, message]
+    messages: [...conversation.messages, messageToAdd]
   };
 };
 module.exports = {

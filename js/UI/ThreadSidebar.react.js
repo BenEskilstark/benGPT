@@ -1,10 +1,12 @@
 const React = require('react');
-const {createConversation} = require('../gpt');
+const {createConversation, createModelParams} = require('../gpt');
 const {
   Button
 } = require('bens_ui_components');
 const {isMobile} = require('bens_utils').platform;
 const ThreadTitle = require('./ThreadTitle.react');
+const ImportManyJSONModal = require('./ImportManyJSONModal.react');
+const ApiKeyModal = require('./ApiKeyModal.react');
 const {useState} = React;
 
 
@@ -71,14 +73,49 @@ const ThreadSidebar = (props) => {
           dispatch({type: 'ADD_CONVERSATION',
             conversation: createConversation({
               name: 'conversation ' + (Object.keys(state.conversations).length + 1),
-              placeholder: 'Type anything...', tokens: 0,
+              placeholder: 'Type anything...', tokens: 0, modelParams: createModelParams(),
             }),
             shouldSelect: true,
           });
         }}
       />
 
+      <Button
+        label="New API Key"
+        onClick={() => {
+          dispatch({type: 'SET_MODAL', modal: <ApiKeyModal dispatch={dispatch} />});
+        }}
+      />
 
+      <div
+        style={{
+          display: 'flex',
+          gap: '10px',
+          marginBottom: '15px',
+        }}
+      >
+        <Button
+          label="Copy All"
+          style={{
+            fontSize: 15,
+          }}
+          onClick={() => {
+            navigator.clipboard.writeText(JSON.stringify(state.conversations))
+          }}
+        />
+        <Button
+          label="Import Many"
+          style={{
+            fontSize: 15,
+          }}
+          onClick={() => {
+            dispatch({type: 'SET_MODAL',
+              modal: <ImportManyJSONModal dispatch={dispatch} />
+            });
+          }}
+        />
+
+      </div>
     </div>
   );
 }

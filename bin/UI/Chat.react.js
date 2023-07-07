@@ -83,7 +83,7 @@ function Chat(props) {
   const [showTextExpander, setShowTextExpander] = useState(false);
   let textInput = /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 800,
+      width: '100%',
       position: 'relative'
     }
   }, showBigTextBox ? /*#__PURE__*/React.createElement(TextArea, {
@@ -177,6 +177,7 @@ function Chat(props) {
   })), isMobile() ? textInput : null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 10,
+      marginRight: 10,
       display: 'flex',
       flexDirection: 'row',
       gap: 10,
@@ -197,7 +198,14 @@ function Chat(props) {
     style: {
       display: 'inherit'
     }
-  })) : null, !isMobile() ? textInput : null, /*#__PURE__*/React.createElement(Button, {
+  })) : null, !isMobile() ? textInput : null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: showBigTextBox ? 'column' : 'row',
+      gap: '10px',
+      alignSelf: 'flex-end'
+    }
+  }, /*#__PURE__*/React.createElement(Button, {
     label: "Submit",
     style: {
       fontSize: 16
@@ -217,7 +225,7 @@ function Chat(props) {
       fontSize: 16
     },
     onClick: onClear
-  })) : null));
+  })) : null)));
 }
 const submitPrompt = (role, onSubmit, curPrompt, setCurPrompt, submitToAPI) => {
   onSubmit({

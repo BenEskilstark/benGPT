@@ -5,7 +5,8 @@ const {
   conversationReducer
 } = require('./conversationReducer');
 const {
-  createConversation
+  createConversation,
+  createModelParams
 } = require('../gpt');
 const {
   config
@@ -42,7 +43,8 @@ const initState = () => {
       ['conversation 1']: createConversation({
         name: 'conversation 1',
         placeholder: 'Type anything...',
-        tokens: 0
+        tokens: 0,
+        modelParams: createModelParams()
       })
     },
     selectedConversation: selected ?? 'conversation 1',

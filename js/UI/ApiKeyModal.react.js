@@ -3,13 +3,14 @@ const {Modal, TextField} = require('bens_ui_components');
 const {useEffect, useState, useMemo} = React;
 
 const ApiKeyModal = (props) => {
-  const {state, dispatch} = props;
+  const {dispatch} = props;
 
-  const [apiKeyText, setApiKeyText] = useState('');
+  const [apiKeyText, setApiKeyText] = useState(localStorage.getItem('gptAPIKey') ?? '');
 
   return (
     <Modal
       title={"Provide API Key"}
+      dismiss={() => dispatch({type: 'DISMISS_MODAL'})}
       body={
         <div
           style={{
@@ -21,8 +22,7 @@ const ApiKeyModal = (props) => {
           Get a key <a
             target="_blank"
             href="https://platform.openai.com/account/api-keys">here</a>.
-          If your key gets rotated, then delete it in the console with
-          localStorage.removeItem("gptAPIKey") and then refresh
+          If your key gets rotated, then click the NEW API KEY button to add a new one.
           <TextField
             style={{
               width: '99%',
