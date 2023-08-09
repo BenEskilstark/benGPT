@@ -186,10 +186,7 @@ const ModelParams = (props) => {
     >
       Model:
       <Dropdown
-        options={[
-          'gpt-3.5-turbo',
-          'gpt-3.5-turbo-16k',
-        ]}
+        options={Object.keys(config.modelToMaxTokens)}
         onChange={(model) => {
           dispatch({type: 'UPDATE_CONVERSATION',
             conversation: {
