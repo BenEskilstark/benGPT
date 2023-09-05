@@ -1,3 +1,4 @@
+- Should handle errors in chat and stop loading cursor and indicate to user they should retry
 
 - Chat:
   - should also debounce name since renaming flickers the chat
