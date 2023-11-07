@@ -1,3 +1,6 @@
+- Should handle errors in chat and stop loading cursor and indicate to user they should retry
+- Number of tokens and other information in the Edit area are lost between closing/opening
+- 32K and 16k token windows don't actually work
 
 - Chat:
   - should also debounce name since renaming flickers the chat
