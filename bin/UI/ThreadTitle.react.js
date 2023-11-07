@@ -187,7 +187,7 @@ const ModelParams = props => {
   return /*#__PURE__*/React.createElement("div", {
     style: {}
   }, "Model:", /*#__PURE__*/React.createElement(Dropdown, {
-    options: ['gpt-3.5-turbo', 'gpt-3.5-turbo-16k'],
+    options: Object.keys(config.modelToMaxTokens),
     onChange: model => {
       dispatch({
         type: 'UPDATE_CONVERSATION',

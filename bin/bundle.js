@@ -947,7 +947,7 @@ const ModelParams = props => {
   return /*#__PURE__*/React.createElement("div", {
     style: {}
   }, "Model:", /*#__PURE__*/React.createElement(Dropdown, {
-    options: ['gpt-3.5-turbo', 'gpt-3.5-turbo-16k'],
+    options: Object.keys(config.modelToMaxTokens),
     onChange: model => {
       dispatch({
         type: 'UPDATE_CONVERSATION',
@@ -968,7 +968,9 @@ module.exports = ThreadTitle;
 const config = {
   modelToMaxTokens: {
     'gpt-3.5-turbo': 4096,
-    'gpt-3.5-turbo-16k': 16384
+    'gpt-3.5-turbo-16k': 16384,
+    'gpt-4-0613': 8192,
+    'gpt-4-32k-0613': 32768
   }
 };
 module.exports = {
