@@ -55,10 +55,11 @@ function Thread(props) {
                   <Modal
                     title={ex.name}
                     dismiss={() => dispatch({type: 'DISMISS_MODAL'})}
-                    body={
+                    buttons={[]}
+                    body={<div>
                       <div>{ex.message}</div>
                       <div>Try refreshing the page and submitting again.</div>
-                    }
+                    </div>}
                   />
                 )
               });

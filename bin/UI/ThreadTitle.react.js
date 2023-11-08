@@ -188,6 +188,7 @@ const ModelParams = props => {
     style: {}
   }, "Model:", /*#__PURE__*/React.createElement(Dropdown, {
     options: Object.keys(config.modelToMaxTokens),
+    selected: conversation.model,
     onChange: model => {
       dispatch({
         type: 'UPDATE_CONVERSATION',

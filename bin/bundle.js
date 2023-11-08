@@ -541,6 +541,9 @@ const {
   addMessage
 } = require('../gpt');
 const {
+  Modal
+} = require('bens_ui_components');
+const {
   useState,
   useEffect,
   useMemo
@@ -597,6 +600,21 @@ function Thread(props) {
           });
         }).catch(ex => {
           console.error(ex);
+          dispatch({
+            type: 'SET_AWAITING',
+            awaitingResponse: false
+          });
+          dispatch({
+            type: 'SET_MODAL',
+            modal: /*#__PURE__*/React.createElement(Modal, {
+              title: ex.name,
+              dismiss: () => dispatch({
+                type: 'DISMISS_MODAL'
+              }),
+              buttons: [],
+              body: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", null, ex.message), /*#__PURE__*/React.createElement("div", null, "Try refreshing the page and submitting again."))
+            })
+          });
         });
       }
     },
@@ -628,7 +646,7 @@ function Thread(props) {
   });
 }
 module.exports = Thread;
-},{"../gpt":11,"./Chat.react":2,"react":101}],8:[function(require,module,exports){
+},{"../gpt":11,"./Chat.react":2,"bens_ui_components":84,"react":101}],8:[function(require,module,exports){
 const React = require('react');
 const {
   createConversation,
@@ -948,6 +966,7 @@ const ModelParams = props => {
     style: {}
   }, "Model:", /*#__PURE__*/React.createElement(Dropdown, {
     options: Object.keys(config.modelToMaxTokens),
+    selected: conversation.model,
     onChange: model => {
       dispatch({
         type: 'UPDATE_CONVERSATION',
@@ -970,7 +989,8 @@ const config = {
     'gpt-3.5-turbo': 4096,
     'gpt-3.5-turbo-16k': 16384,
     'gpt-4-0613': 8192,
-    'gpt-4-32k-0613': 32768
+    'gpt-4-32k-0613': 32768,
+    'gpt-4-1106-preview': 128000
   }
 };
 module.exports = {

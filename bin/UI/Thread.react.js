@@ -6,6 +6,9 @@ const {
   addMessage
 } = require('../gpt');
 const {
+  Modal
+} = require('bens_ui_components');
+const {
   useState,
   useEffect,
   useMemo
@@ -62,6 +65,21 @@ function Thread(props) {
           });
         }).catch(ex => {
           console.error(ex);
+          dispatch({
+            type: 'SET_AWAITING',
+            awaitingResponse: false
+          });
+          dispatch({
+            type: 'SET_MODAL',
+            modal: /*#__PURE__*/React.createElement(Modal, {
+              title: ex.name,
+              dismiss: () => dispatch({
+                type: 'DISMISS_MODAL'
+              }),
+              buttons: [],
+              body: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", null, ex.message), /*#__PURE__*/React.createElement("div", null, "Try refreshing the page and submitting again."))
+            })
+          });
         });
       }
     },
