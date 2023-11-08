@@ -4,6 +4,7 @@ const {
   createConversation, submitConversation,
   addMessage,
 } = require('../gpt');
+const {Modal} = require('bens_ui_components');
 const {useState, useEffect, useMemo} = React;
 
 /**
@@ -48,6 +49,19 @@ function Thread(props) {
               dispatch({type: 'SET_AWAITING', awaitingResponse: false});
             }).catch((ex) => {
               console.error(ex);
+              dispatch({type: 'SET_AWAITING', awaitingResponse: false});
+              dispatch({type: 'SET_MODAL',
+                modal: (
+                  <Modal
+                    title={ex.name}
+                    dismiss={() => dispatch({type: 'DISMISS_MODAL'})}
+                    body={
+                      <div>{ex.message}</div>
+                      <div>Try refreshing the page and submitting again.</div>
+                    }
+                  />
+                )
+              });
             });
         }
       }}
