@@ -443,7 +443,7 @@ module.exports = Main;
 "use strict";
 
 var _reactMarkdown = _interopRequireDefault(require("react-markdown"));
-var _rehypeHighlight = _interopRequireDefault(require("rehype-Highlight"));
+var _rehypeHighlight = _interopRequireDefault(require("rehype-highlight"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 const React = require('react');
 const {
@@ -547,7 +547,7 @@ const Message = props => {
   }
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      whiteSpace: 'pre-wrap',
+      // whiteSpace: 'pre-wrap',
       display: 'flex',
       // flex: 1,
       fontSize: 14,
@@ -557,7 +557,7 @@ const Message = props => {
 };
 module.exports = Message;
 
-},{"bens_ui_components":85,"bens_utils":92,"react":277,"react-markdown":270,"rehype-Highlight":278}],7:[function(require,module,exports){
+},{"bens_ui_components":85,"bens_utils":92,"react":277,"react-markdown":270,"rehype-highlight":278}],7:[function(require,module,exports){
 const React = require('react');
 const Chat = require('./Chat.react');
 const {
