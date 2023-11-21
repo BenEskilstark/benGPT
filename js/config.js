@@ -6,6 +6,7 @@ const config = {
     'gpt-4-32k-0613': 32768,
     'gpt-4-1106-preview': 128000,
   },
+  defaultModel: 'gpt-4-1106-preview',
 }
 
 module.exports = {

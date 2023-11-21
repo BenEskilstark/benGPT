@@ -32,7 +32,7 @@ const ThreadSidebar = (props) => {
       style={{
         width: 250,
         height: '100%',
-        overflowY: 'scroll',
+        overflowY: 'auto',
         display: 'flex',
         alignItems: 'center',
         flexDirection: 'column',

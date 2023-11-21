@@ -143,20 +143,13 @@ function Chat(props) {
       }
     });
   }, [curPrompt, role, showBigTextBox, submitToAPI, conversation, submitOnEnter]);
-
-  // for calculating the height of the message area vs input area
-  let inputAreaHeight = 45;
-  if (showBigTextBox) {
-    inputAreaHeight = 180;
-  }
-  if (isMobile()) {
-    inputAreaHeight += 25;
-  }
   return /*#__PURE__*/React.createElement("div", {
     style: {
       width: 400,
       margin: 'auto',
       marginTop: 15,
+      display: 'flex',
+      flexDirection: 'column',
       ...style
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -164,8 +157,8 @@ function Chat(props) {
       // border: '1px solid black',
       backgroundColor: 'white',
       width: '100%',
-      height: `calc(100% - ${inputAreaHeight}px`,
-      overflowY: 'scroll',
+      overflowY: 'auto',
+      flexGrow: 1,
       padding: 6,
       paddingBottom: 64,
       boxShadow: 'inset 0.3em -0.3em 0.5em rgba(0,0,0,0.3)',
@@ -178,6 +171,7 @@ function Chat(props) {
     style: {
       marginTop: 10,
       marginRight: 10,
+      marginBottom: 5,
       display: 'flex',
       flexDirection: 'row',
       gap: 10,

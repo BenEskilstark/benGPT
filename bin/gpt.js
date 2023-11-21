@@ -21,8 +21,7 @@ const {
  */
 const createConversation = (params, messages) => {
   return {
-    model: 'gpt-3.5-turbo',
-    // | 'gpt-3.5-turbo-16k'
+    model: config.defaultModel,
     name: '',
     tokens: 0,
     placeholder: '',
@@ -35,7 +34,7 @@ const createModelParams = model => {
   return {
     temperature: 1,
     top_p: 1,
-    max_tokens: model ? config.modelToMaxTokens[model] : 4096,
+    max_tokens: model ? config.modelToMaxTokens[model] : config.modelToMaxTokens[config.defaultModel],
     n: 1,
     frequency_penalty: 0,
     presence_penalty: 0

@@ -44,7 +44,7 @@ const initState = () => {
         name: 'conversation 1',
         placeholder: 'Type anything...',
         tokens: 0,
-        modelParams: createModelParams()
+        modelParams: createModelParams(config.defaultModel)
       })
     },
     selectedConversation: selected ?? 'conversation 1',

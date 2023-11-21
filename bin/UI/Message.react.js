@@ -5,6 +5,8 @@ const {
 const {
   debounce
 } = require('bens_utils').helpers;
+import Markdown from 'react-markdown';
+import rehypeHighlight from 'rehype-Highlight';
 const {
   useEffect,
   useState,
@@ -33,19 +35,25 @@ const Message = props => {
   useEffect(() => {
     resetSize(name, index);
   }, [name]);
+  const [isEditing, setIsEditing] = useState(false);
+  useEffect(() => {
+    if (!isEditing) return;
+    const elem = document.getElementById("text_area_" + name + "_" + index);
+    if (!elem) return;
+    elem.focus();
+  }, [isEditing]);
   useEffect(() => {
     const elem = document.getElementById("text_area_" + name + "_" + index);
     if (!elem) return;
     elem.style.height = elem.scrollHeight + 'px';
     debounceResetSize(name, index);
-  }, [content]);
+  }, [content, isEditing]);
   let displayContent = content;
-  if (onEdit) {
+  if (onEdit && isEditing) {
     displayContent = /*#__PURE__*/React.createElement(TextArea, {
       id: "text_area_" + name + "_" + index,
       style: {
         border: 'none',
-        font: 'inherit',
         resize: 'none',
         width: '100%',
         height: 'auto',
@@ -58,28 +66,47 @@ const Message = props => {
           content: value
         }, index);
       },
-      onFocus: () => {
-        setTimeout(() => {
-          dispatch({
-            type: 'SET_EDITING_PREVIOUS',
-            isEditingPreviousMessage: true
-          });
-        }, 100);
-      },
       onBlur: () => {
+        setIsEditing(false);
         dispatch({
           type: 'SET_EDITING_PREVIOUS',
           isEditingPreviousMessage: false
         });
       }
     });
+  } else {
+    displayContent = /*#__PURE__*/React.createElement("div", {
+      style: {
+        border: 'none',
+        resize: 'none',
+        width: '90%',
+        height: 'auto',
+        flex: 1
+      },
+      onClick: () => {
+        const isTextSelected = window.getSelection().toString().length > 0;
+        if (isTextSelected) return;
+        setTimeout(() => {
+          setIsEditing(true);
+          dispatch({
+            type: 'SET_EDITING_PREVIOUS',
+            isEditingPreviousMessage: true
+          });
+        }, 100);
+      }
+    }, /*#__PURE__*/React.createElement(Markdown, {
+      rehypePlugins: [[rehypeHighlight, {
+        ignoreMissing: true
+      }]]
+    }, content));
   }
   return /*#__PURE__*/React.createElement("div", {
     style: {
       whiteSpace: 'pre-wrap',
       display: 'flex',
       // flex: 1,
-      fontSize: 14
+      fontSize: 14,
+      marginBottom: 10
     }
   }, /*#__PURE__*/React.createElement("b", null, roleNames && roleNames[role] ? roleNames[role] : role), ": ", displayContent);
 };

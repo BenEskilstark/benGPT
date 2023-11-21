@@ -21,14 +21,15 @@ body {
 .container {
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  overflow-y: scroll;
+  overflow-x: hidden;
   position: relative;
   margin: auto;
   /* font-family: "Courier New", sans-serif; */
-  font-family: Söhne,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,Helvetica Neue,Arial,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
-  font-weight: 300;
+  font-family: "Rumiko", sans-serif;
+  font-size: 1rem;
+  color: #241969;
   touch-action: none;
+  line-height: 18px;
 }
 
 input[type=range] {
@@ -54,9 +55,19 @@ input[type=range]::-webkit-slider-thumb {
 
 textarea {
   /* all: unset; */
+  color: inherit;
+  font-size: 1rem;
 }
 
 button {
-  font-family: "Courier New", sans-serif;
+  font-family: "Rumiko", sans-serif;
+}
+
+pre, p, h1, h2, h3 {
+  margin: 0;
+}
+
+h1, h2 {
+  text-align: center;
 }
 
