@@ -4,7 +4,7 @@ const {
 } = require('bens_ui_components');
 const {debounce} = require('bens_utils').helpers;
 import Markdown from 'react-markdown'
-import rehypeHighlight from 'rehype-Highlight';
+import rehypeHighlight from 'rehype-highlight';
 const {useEffect, useState, useMemo} = React;
 
 const resetSize = (name, index) => {
