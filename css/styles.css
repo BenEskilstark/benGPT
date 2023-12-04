@@ -71,3 +71,8 @@ h1, h2 {
   text-align: center;
 }
 
+pre code.hljs {
+  background: #fbfbfb;
+  border: 1px solid #f3f3f3;
+}
+

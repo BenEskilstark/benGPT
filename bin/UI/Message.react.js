@@ -81,6 +81,8 @@ const Message = props => {
         resize: 'none',
         width: '90%',
         height: 'auto',
+        marginRight: 35,
+        maxWidth: 850,
         flex: 1
       },
       onClick: () => {
@@ -108,6 +110,10 @@ const Message = props => {
       fontSize: 14,
       marginBottom: 10
     }
-  }, /*#__PURE__*/React.createElement("b", null, roleNames && roleNames[role] ? roleNames[role] : role), ": ", displayContent);
+  }, /*#__PURE__*/React.createElement("b", {
+    style: {
+      minWidth: 62
+    }
+  }, roleNames && roleNames[role] ? roleNames[role] : role), ": \xA0", displayContent);
 };
 module.exports = Message;

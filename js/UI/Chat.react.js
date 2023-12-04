@@ -146,6 +146,7 @@ function Chat(props) {
           boxShadow: 'inset 0.3em -0.3em 0.5em rgba(0,0,0,0.3)',
           display: 'flex',
           flexDirection: 'column',
+          alignItems: 'center',
         }}
       >
         {messages}

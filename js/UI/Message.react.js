@@ -72,6 +72,8 @@ const Message = (props) => {
           resize: 'none',
           width: '90%',
           height: 'auto',
+          marginRight: 35,
+          maxWidth: 850,
           flex: 1,
         }}
         onClick={() => {
@@ -102,7 +104,10 @@ const Message = (props) => {
         marginBottom: 10,
       }}
     >
-    <b>{(roleNames && roleNames[role]) ? roleNames[role] : role}</b>: {displayContent}
+    <b style={{minWidth: 62}}>
+      {(roleNames && roleNames[role]) ? roleNames[role] : role}
+    </b>: &nbsp;
+    {displayContent}
     </div>
   );
 };

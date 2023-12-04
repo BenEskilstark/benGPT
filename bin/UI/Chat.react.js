@@ -163,7 +163,8 @@ function Chat(props) {
       paddingBottom: 64,
       boxShadow: 'inset 0.3em -0.3em 0.5em rgba(0,0,0,0.3)',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      alignItems: 'center'
     }
   }, messages, /*#__PURE__*/React.createElement("div", {
     ref: messagesEndRef
