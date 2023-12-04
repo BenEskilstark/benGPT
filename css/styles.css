@@ -63,8 +63,12 @@ button {
   font-family: "Rumiko", sans-serif;
 }
 
-pre, p, h1, h2, h3 {
+h2, h3 {
   margin: 0;
+}
+
+p {
+  margin-top: 0;
 }
 
 h1, h2 {

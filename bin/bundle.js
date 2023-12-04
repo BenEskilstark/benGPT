@@ -550,7 +550,7 @@ const Message = props => {
   }
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      whiteSpace: 'pre-wrap',
+      // whiteSpace: 'pre-wrap',
       display: 'flex',
       // flex: 1,
       fontSize: 14,
