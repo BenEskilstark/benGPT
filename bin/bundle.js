@@ -528,7 +528,7 @@ const Message = props => {
         width: '90%',
         height: 'auto',
         marginRight: 35,
-        maxWidth: 850,
+        maxWidth: 800,
         flex: 1
       },
       onClick: () => {
@@ -554,13 +554,15 @@ const Message = props => {
       display: 'flex',
       // flex: 1,
       fontSize: 14,
-      marginBottom: 10
+      marginBottom: 10,
+      width: 900
     }
   }, /*#__PURE__*/React.createElement("b", {
     style: {
-      minWidth: 62
+      minWidth: 70,
+      textAlign: "left"
     }
-  }, roleNames && roleNames[role] ? roleNames[role] : role), ": \xA0", displayContent);
+  }, roleNames && roleNames[role] ? roleNames[role] : role), " \xA0", displayContent);
 };
 module.exports = Message;
 
